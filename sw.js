@@ -1,7 +1,15 @@
 /* Klubbkassan – service worker: gör appen tillgänglig offline.
    Strategi: svara direkt från cache, uppdatera cachen i bakgrunden (stale-while-revalidate). */
-const CACHE = 'klubbkassan-v3';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'klubbkassan-v4';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icon.svg',
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png'
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));

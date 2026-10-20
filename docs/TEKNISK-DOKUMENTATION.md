@@ -210,10 +210,12 @@ C<nummer>;<belopp>;<meddelande>;<lås>
 | `C` | Prefix för förifylld betalning |
 | nummer | `settings.swish` (normaliserat) |
 | belopp | Korgens total i hela kronor |
-| meddelande | `qrMessage(settings.message)` |
+| meddelande | `qrMessage(settings.message) + ' #' + refCode` |
 | lås | `0` – inga fält redigerbara för betalaren |
 
-Exempel: `C1231234567;45;Kiosk P14;0`
+Exempel: `C1231234567;45;Kiosk P14 #B27;0`
+
+Appen genererar en unik 3-teckens kontrollkod (`#B27`) vid varje Swish-betalning. Koden visas i kassan och ingår i betalningsmeddelandet, vilket gör det enkelt för personalen att verifiera att kunden genomfört rätt betalning och inte visar en gammal skärmdump eller bluff-app.
 
 `qrMessage()` saneras eftersom:
 - `;` är fältavgränsare → ersätts med `,`.
@@ -237,8 +239,8 @@ Vid start (endast om `location.protocol` är `http:`/`https:`):
 3. `beforeinstallprompt` fångas → knappen **Installera på hemskärmen** visas i Inställningar.
 
 **`sw.js`**
-- Cache-namn: `klubbkassan-v3`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
-- Förcachar: `./`, `./index.html`, `./manifest.webmanifest`, `./icon.svg`.
+- Cache-namn: `klubbkassan-v4`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
+- Förcachar: `./`, `./index.html`, `./manifest.webmanifest`, `./icon.svg`, `./apple-touch-icon.png`, `./icon-192.png`, `./icon-512.png`.
 - Strategi: *stale-while-revalidate* för GET-anrop till samma origin. Navigeringar faller tillbaka till `index.html`.
 - `skipWaiting()` + `clients.claim()` → ny version aktiveras direkt; användaren ser den vid nästa omladdning.
 
@@ -333,7 +335,7 @@ Datum;Tid;Order-ID;Betalsätt;Vara;Antal;Styckpris;Summa
 | `DEFAULT_MENU` | Lagring | Kaffe 15, Festis 10, Kaka 10, Toast 25, Korv med bröd 20 |
 | `UNDO_MS` | Ångra | `4000` |
 | Standardmeddelande | `state.settings`, spara | `'Kiosk'` |
-| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v3'` |
+| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v4'` |
 
 ---
 

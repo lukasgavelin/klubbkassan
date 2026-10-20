@@ -10,6 +10,8 @@
 <meta name="description" content="Klubbkassan – enkel kassa med Swish-QR och kontant för föreningens kiosk, café och evenemang.">
 <meta name="application-name" content="Klubbkassan">
 <meta name="apple-mobile-web-app-title" content="Klubbkassan">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23111214'/%3E%3Cpath d='M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z' fill='%2308873a'/%3E%3Cpath d='M190 262l46 46 90-100' fill='none' stroke='%23fff' stroke-width='40' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <!-- qrcodejs 1.0.0 (MIT, davidshimjs) – inbäddat så att appen fungerar offline. Källa: https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js -->
 <script>
@@ -335,6 +337,19 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .qr-error { max-width: 280px; text-align: center; color: var(--red); font-weight: 700; padding: 20px; }
   .pay-number { font-size: 1.5rem; font-weight: 900; letter-spacing: .5px; margin: 0; }
   .pay-msg { color: var(--muted); margin: 2px 0 12px; text-align: center; }
+  .ref-box {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; margin: 8px 0 4px;
+    background: #f2f3f5; border: 2px dashed #9aa0a6; border-radius: 10px;
+    font-size: .95rem; font-weight: 700; color: var(--text);
+  }
+  .ref-code {
+    background: var(--amber); color: #111;
+    padding: 2px 8px; border-radius: 6px; font-weight: 900; letter-spacing: 1px; font-size: 1.15rem;
+  }
+  .ref-hint {
+    font-size: .85rem; color: var(--muted); margin: 0 0 10px; text-align: center;
+  }
   .pay-actions { width: 100%; display: grid; gap: 10px; margin-top: auto; padding-top: 10px; }
   .pay-actions .btn-done { min-height: 76px; font-size: 1.45rem; font-weight: 900; border-radius: 18px; }
 
@@ -490,7 +505,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       <ul id="menuList" class="menu-list"></ul>
       <form id="addForm" class="add-form" autocomplete="off" novalidate>
         <input id="addName" type="text" maxlength="30" placeholder="Varans namn" aria-label="Varans namn">
-        <input id="addPrice" type="number" inputmode="numeric" min="1" step="1" placeholder="Pris" aria-label="Pris i kronor">
+        <input id="addPrice" type="number" inputmode="numeric" min="0" step="1" placeholder="Pris" aria-label="Pris i kronor">
         <div id="addError" class="error" hidden></div>
         <button type="submit" class="btn">+ Lägg till vara</button>
       </form>
@@ -535,6 +550,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       <div id="qrWrap" class="qr-wrap"><div id="qr"></div></div>
       <div class="pay-label">Swisha till</div>
       <p id="payNumber" class="pay-number"></p>
+      <div id="payRefBox" class="ref-box" hidden>
+        <span>Kontrollkod:</span>
+        <strong id="payRefCode" class="ref-code"></strong>
+      </div>
+      <p id="payRefHint" class="ref-hint" hidden>Kontrollera att koden syns i kundens genomförda Swish</p>
       <p id="payMsg" class="pay-msg"></p>
     </div>
     <div id="payCash" class="pay-method" hidden>
@@ -575,12 +595,19 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   function load(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
+      if (raw === null || raw === undefined) return fallback;
+      const parsed = JSON.parse(raw);
+      return (parsed !== null && parsed !== undefined) ? parsed : fallback;
     } catch (e) { return fallback; }
   }
   function save(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); }
-    catch (e) { toast('Kunde inte spara data (lagringen är full eller blockerad)'); }
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      toast('Kunde inte spara data (lagringen är full eller blockerad)');
+      return false;
+    }
   }
 
   const DEFAULT_MENU = [
@@ -592,10 +619,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   ];
 
   const state = {
-    settings: Object.assign({ swish: '', title: BRAND, message: 'Kiosk' }, load(KEYS.settings, {})),
-    menu: load(KEYS.menu, []),
-    orders: load(KEYS.orders, []),
-    cart: load(KEYS.cart, {}),   // { itemId: qty }
+    settings: Object.assign({ swish: '', title: BRAND, message: 'Kiosk' }, load(KEYS.settings, {}) || {}),
+    menu: Array.isArray(load(KEYS.menu, [])) ? load(KEYS.menu, []) : [],
+    orders: Array.isArray(load(KEYS.orders, [])) ? load(KEYS.orders, []) : [],
+    cart: (load(KEYS.cart, {}) && typeof load(KEYS.cart, {}) === 'object') ? load(KEYS.cart, {}) : {},
     editingId: null,
     cartOpen: false
   };
@@ -616,10 +643,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     toastTimer = setTimeout(() => el.remove(), 2200);
   }
 
-  /** Tar bort mellanslag/bindestreck och gör om +46 till 0. */
+  /** Tar bort mellanslag/bindestreck och gör om +46 till 0 (men behåller 123-nummer). */
   function normalizeSwish(raw) {
     let s = String(raw || '').replace(/[^\d+]/g, '');
-    if (s.startsWith('+46')) s = '0' + s.slice(3);
+    if (s.startsWith('+46123')) s = s.slice(3);
+    else if (s.startsWith('0046123')) s = s.slice(4);
+    else if (/^46123\d{7}$/.test(s)) s = s.slice(2);
+    else if (s.startsWith('+46')) s = '0' + s.slice(3);
     else if (s.startsWith('0046')) s = '0' + s.slice(4);
     else if (/^467\d{8}$/.test(s)) s = '0' + s.slice(2);
     return s.replace(/\D/g, '');
@@ -646,8 +676,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       .trim().slice(0, 50);
   }
   function parsePrice(v) {
-    const n = Number(String(v).replace(',', '.'));
-    if (!isFinite(n) || n <= 0 || n > 100000) return null;
+    const s = String(v).trim().replace(',', '.');
+    if (s === '') return null;
+    const n = Number(s);
+    if (!isFinite(n) || n < 0 || n > 100000) return null;
     return Math.round(n);
   }
 
@@ -698,7 +730,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
     const payBtn = $('payBtn');
     payBtn.textContent = 'Ta betalt (' + kr(total) + ')';
-    payBtn.disabled = total <= 0;
+    payBtn.disabled = count <= 0;
 
     const list = $('cartList');
     if (!lines.length) {
@@ -829,34 +861,61 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   }
   function releaseWakeLock() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
 
+  let currentRefCode = '';
+  function generateRefCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 3; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
   function openPay() {
+    const count = cartCount();
+    if (count <= 0) return;
     const total = cartTotal();
-    if (total <= 0) return;
     closeCart();
     hideUndo();
     const s = state.settings;
-    const msg = qrMessage(s.message || 'Kiosk');
-    const payload = 'C' + s.swish + ';' + total + ';' + msg + ';0';
 
     $('payTitle').textContent = s.title || BRAND;
     $('payAmount').textContent = kr(total);
-    $('payNumber').textContent = formatSwish(s.swish);
-    $('payMsg').textContent = msg ? 'Meddelande: ' + msg : '';
     cashReceived = null;
     $('cashInput').value = '';
-    setPayMethod('swish');
 
-    const qrEl = $('qr');
-    qrEl.innerHTML = '';
-    const size = Math.floor(Math.max(180, Math.min(window.innerWidth - 80, window.innerHeight * 0.38, 340)));
-    if (typeof QRCode === 'undefined') {
-      qrEl.innerHTML = '<div class="qr-error">QR-koden kunde inte skapas. Kunden kan swisha manuellt till numret nedan.</div>';
+    if (total <= 0) {
+      currentRefCode = '';
+      $('tabSwish').disabled = true;
+      $('tabSwish').title = 'Swish kräver minst 1 kr';
+      $('payRefBox').hidden = true;
+      $('payRefHint').hidden = true;
+      setPayMethod('cash');
     } else {
-      try {
-        new QRCode(qrEl, { text: payload, width: size, height: size, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
-        qrEl.title = '';
-      } catch (err) {
-        qrEl.innerHTML = '<div class="qr-error">Kunde inte skapa QR-kod. Swisha manuellt till numret nedan.</div>';
+      $('tabSwish').disabled = false;
+      $('tabSwish').title = '';
+      currentRefCode = generateRefCode();
+      const baseMsg = qrMessage(s.message || 'Kiosk');
+      const fullMsg = baseMsg ? (baseMsg + ' #' + currentRefCode) : ('#' + currentRefCode);
+      const payload = 'C' + s.swish + ';' + total + ';' + fullMsg + ';0';
+
+      $('payNumber').textContent = formatSwish(s.swish);
+      $('payRefCode').textContent = '#' + currentRefCode;
+      $('payRefBox').hidden = false;
+      $('payRefHint').hidden = false;
+      $('payMsg').textContent = baseMsg ? 'Meddelande: ' + baseMsg + ' #' + currentRefCode : 'Meddelande: #' + currentRefCode;
+      setPayMethod('swish');
+
+      const qrEl = $('qr');
+      qrEl.innerHTML = '';
+      const size = Math.floor(Math.max(180, Math.min(window.innerWidth - 80, window.innerHeight * 0.38, 340)));
+      if (typeof QRCode === 'undefined') {
+        qrEl.innerHTML = '<div class="qr-error">QR-koden kunde inte skapas. Kunden kan swisha manuellt till numret nedan.</div>';
+      } else {
+        try {
+          new QRCode(qrEl, { text: payload, width: size, height: size, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+          qrEl.title = '';
+        } catch (err) {
+          qrEl.innerHTML = '<div class="qr-error">Kunde inte skapa QR-kod. Swisha manuellt till numret nedan.</div>';
+        }
       }
     }
     $('payView').hidden = false;
@@ -875,6 +934,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   let cashReceived = null;   // null = inget angivet (jämnt)
 
   function setPayMethod(method) {
+    if (method === 'swish' && cartTotal() <= 0) return;
     payMethod = method;
     ['swish', 'cash'].forEach((m) => {
       const tab = $(m === 'swish' ? 'tabSwish' : 'tabCash');
@@ -888,6 +948,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   }
 
   function cashSuggestions(total) {
+    if (total <= 0) return [0];
     const set = [total];
     [10, 20, 50, 100, 200, 500, 1000].forEach((step) => {
       const v = Math.ceil(total / step) * step;
@@ -900,12 +961,12 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const total = cartTotal();
     $('cashQuick').innerHTML = cashSuggestions(total).map((v) =>
       '<button type="button" data-cash="' + v + '"' + (cashReceived === v ? ' class="selected"' : '') + '>' +
-      (v === total ? 'Jämnt' : kr(v)) + '</button>'
+      (v === total ? (total === 0 ? '0 kr' : 'Jämnt') : kr(v)) + '</button>'
     ).join('');
     const box = $('cashChange');
     box.classList.remove('ok', 'short');
     if (cashReceived === null) {
-      box.innerHTML = '<span class="pay-label">Växel tillbaka</span><div class="amount">–</div>';
+      box.innerHTML = '<span class="pay-label">Växel tillbaka</span><div class="amount">' + (total === 0 ? '0 kr' : '–') + '</div>';
     } else if (cashReceived >= total) {
       box.classList.add('ok');
       box.innerHTML = '<span class="pay-label">Växel tillbaka</span><div class="amount">' + kr(cashReceived - total) + '</div>';
@@ -918,10 +979,15 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
   function updateDoneBtn() {
     const btn = $('doneBtn');
+    const total = cartTotal();
     if (payMethod === 'cash') {
-      const short = cashReceived !== null && cashReceived < cartTotal();
+      const short = cashReceived !== null && cashReceived < total;
       btn.disabled = short;
-      btn.textContent = short ? 'Beloppet räcker inte' : 'Klar (kontant) / Ny kund';
+      if (total === 0) {
+        btn.textContent = 'Klar (0 kr) / Ny kund';
+      } else {
+        btn.textContent = short ? 'Beloppet räcker inte' : 'Klar (kontant) / Ny kund';
+      }
     } else {
       btn.disabled = false;
       btn.textContent = 'Klar / Ny kund';
@@ -948,18 +1014,21 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   function completePayment() {
     if ($('doneBtn').disabled) return;
     const lines = cartLines();
+    let saveOk = true;
+    const total = cartTotal();
+    const currentMethod = payMethod;
     if (lines.length) {
-      const total = cartTotal();
       const order = {
         id: uid(),
+        ref: (currentMethod === 'swish' && currentRefCode) ? currentRefCode : undefined,
         ts: Date.now(),
         items: lines.map((l) => ({ name: l.name, price: l.price, qty: l.qty })),
         total: total,
-        method: payMethod
+        method: currentMethod
       };
-      if (payMethod === 'cash' && cashReceived !== null) order.received = cashReceived;
+      if (currentMethod === 'cash' && cashReceived !== null) order.received = cashReceived;
       state.orders.push(order);
-      save(KEYS.orders, state.orders);
+      if (!save(KEYS.orders, state.orders)) saveOk = false;
     }
     state.cart = {};
     save(KEYS.cart, state.cart);
@@ -967,7 +1036,12 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     closePay();
     renderPOS();
     vibrate([15, 40, 15]);
-    toast('✓ Köpet är sparat (' + (payMethod === 'cash' ? 'kontant' : 'Swish') + ') – redo för nästa kund');
+    if (!saveOk) {
+      alert('Varning: Köpet kunde inte sparas i webbläsarens minne (lagringen är full eller blockerad). Exportera gärna CSV från inställningar för säkerhets skull.');
+    } else {
+      const methodLabel = currentMethod === 'cash' ? (total === 0 ? '0 kr' : 'kontant') : 'Swish';
+      toast('✓ Köpet är sparat (' + methodLabel + ') – redo för nästa kund');
+    }
   }
   $('payBtn').addEventListener('click', openPay);
   $('doneBtn').addEventListener('click', completePayment);
@@ -1046,7 +1120,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       if (state.editingId === m.id) {
         return '<li class="menu-row editing" data-id="' + id + '">' +
           '<input class="e-name" type="text" maxlength="30" value="' + esc(m.name) + '" aria-label="Namn">' +
-          '<input class="e-price" type="number" inputmode="numeric" min="1" step="1" value="' + m.price + '" aria-label="Pris">' +
+          '<input class="e-price" type="number" inputmode="numeric" min="0" step="1" value="' + m.price + '" aria-label="Pris">' +
           '<button class="mini ok" data-m="save" aria-label="Spara">' + icons.ok + '</button>' +
           '<button class="mini" data-m="cancel" aria-label="Avbryt">' + icons.x + '</button>' +
           '</li>';
@@ -1183,7 +1257,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       '<div class="subhead">Senaste köp</div>' +
       '<ul class="orders-list">' +
         recent.map((o) =>
-          '<li><div class="o-info"><div class="o-time">' + esc(fmtDateTime(o.ts)) + ' · ' + (o.method === 'cash' ? 'Kontant' : 'Swish') + '</div>' +
+          '<li><div class="o-info"><div class="o-time">' + esc(fmtDateTime(o.ts)) + ' · ' + (o.method === 'cash' ? (o.total === 0 ? '0 kr' : 'Kontant') : 'Swish' + (o.ref ? ' (#' + esc(o.ref) + ')' : '')) + '</div>' +
           '<div class="o-items">' + esc(o.items.map((it) => it.qty + '× ' + it.name).join(', ')) + '</div></div>' +
           '<span class="o-sum">' + kr(o.total) + '</span>' +
           '<button class="mini del" style="width:42px;height:42px;border-radius:10px;background:#fde8e8;color:var(--red);display:inline-flex;align-items:center;justify-content:center" data-order-del="' + esc(o.id) + '" aria-label="Ta bort köp">' + icons.del + '</button></li>'
@@ -1197,17 +1271,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   }
 
   function exportCSV() {
-    const rows = [['Datum', 'Tid', 'Order-ID', 'Betalsätt', 'Vara', 'Antal', 'Styckpris', 'Summa']];
+    const rows = [['Datum', 'Tid', 'Order-ID', 'Betalsätt', 'Kontrollkod', 'Vara', 'Antal', 'Styckpris', 'Summa']];
     state.orders.forEach((o) => {
       const d = new Date(o.ts);
       const date = d.toLocaleDateString('sv-SE');
       const time = d.toLocaleTimeString('sv-SE');
-      const method = o.method === 'cash' ? 'Kontant' : 'Swish';
-      o.items.forEach((it) => rows.push([date, time, o.id, method, it.name, it.qty, it.price, it.qty * it.price]));
+      const method = o.method === 'cash' ? (o.total === 0 ? '0 kr' : 'Kontant') : 'Swish';
+      o.items.forEach((it) => rows.push([date, time, o.id, method, o.ref || '', it.name, it.qty, it.price, it.qty * it.price]));
     });
     const csv = '\ufeff' + rows.map((r) => r.map((c) => {
       const s = String(c);
-      return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      return /[;"\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
     }).join(';')).join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
@@ -1307,6 +1381,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         navigator.serviceWorker.register('sw.js').then(renderAppStatus).catch(() => {});
       });
     }
+  }
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(() => {});
   }
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
