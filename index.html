@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Klubbkassan</title>
+<meta name="description" content="Klubbkassan – enkel kassa med Swish-QR och kontant för föreningens kiosk, café och evenemang.">
+<meta name="application-name" content="Klubbkassan">
+<meta name="apple-mobile-web-app-title" content="Klubbkassan">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23111214'/%3E%3Cpath d='M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z' fill='%2308873a'/%3E%3Cpath d='M190 262l46 46 90-100' fill='none' stroke='%23fff' stroke-width='40' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<!-- qrcodejs 1.0.0 (MIT, davidshimjs) – inbäddat så att appen fungerar offline. Källa: https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js -->
+<script>
+var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this.parsedData=[];for(var b=[],d=0,e=this.data.length;e>d;d++){var f=this.data.charCodeAt(d);f>65536?(b[0]=240|(1835008&f)>>>18,b[1]=128|(258048&f)>>>12,b[2]=128|(4032&f)>>>6,b[3]=128|63&f):f>2048?(b[0]=224|(61440&f)>>>12,b[1]=128|(4032&f)>>>6,b[2]=128|63&f):f>128?(b[0]=192|(1984&f)>>>6,b[1]=128|63&f):b[0]=f,this.parsedData=this.parsedData.concat(b)}this.parsedData.length!=this.data.length&&(this.parsedData.unshift(191),this.parsedData.unshift(187),this.parsedData.unshift(239))}function b(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]}function i(a,b){if(void 0==a.length)throw new Error(a.length+"/"+b);for(var c=0;c<a.length&&0==a[c];)c++;this.num=new Array(a.length-c+b);for(var d=0;d<a.length-c;d++)this.num[d]=a[d+c]}function j(a,b){this.totalCount=a,this.dataCount=b}function k(){this.buffer=[],this.length=0}function m(){return"undefined"!=typeof CanvasRenderingContext2D}function n(){var a=!1,b=navigator.userAgent;return/android/i.test(b)&&(a=!0,aMat=b.toString().match(/android ([0-9]\.[0-9])/i),aMat&&aMat[1]&&(a=parseFloat(aMat[1]))),a}function r(a,b){for(var c=1,e=s(a),f=0,g=l.length;g>=f;f++){var h=0;switch(b){case d.L:h=l[f][0];break;case d.M:h=l[f][1];break;case d.Q:h=l[f][2];break;case d.H:h=l[f][3]}if(h>=e)break;c++}if(c>l.length)throw new Error("Too long data");return c}function s(a){var b=encodeURI(a).toString().replace(/\%[0-9a-fA-F]{2}/g,"a");return b.length+(b.length!=a?3:0)}a.prototype={getLength:function(){return this.parsedData.length},write:function(a){for(var b=0,c=this.parsedData.length;c>b;b++)a.put(this.parsedData[b],8)}},b.prototype={addData:function(b){var c=new a(b);this.dataList.push(c),this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,c){this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++){this.modules[d]=new Array(this.moduleCount);for(var e=0;e<this.moduleCount;e++)this.modules[d][e]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,c),this.typeNumber>=7&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=b.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,c)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(-1>=a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)-1>=b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=c>=0&&6>=c&&(0==d||6==d)||d>=0&&6>=d&&(0==c||6==c)||c>=2&&4>=c&&d>=2&&4>=d?!0:!1)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=f.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c),e=1;this.make();for(var f=0;f<this.modules.length;f++)for(var g=f*e,h=0;h<this.modules[f].length;h++){var i=h*e,j=this.modules[f][h];j&&(d.beginFill(0,100),d.moveTo(i,g),d.lineTo(i+e,g),d.lineTo(i+e,g+e),d.lineTo(i,g+e),d.endFill())}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2);for(var b=8;b<this.moduleCount-8;b++)null==this.modules[6][b]&&(this.modules[6][b]=0==b%2)},setupPositionAdjustPattern:function(){for(var a=f.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],e=a[c];if(null==this.modules[d][e])for(var g=-2;2>=g;g++)for(var h=-2;2>=h;h++)this.modules[d+g][e+h]=-2==g||2==g||-2==h||2==h||0==g&&0==h?!0:!1}},setupTypeNumber:function(a){for(var b=f.getBCHTypeNumber(this.typeNumber),c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d}for(var c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[c%3+this.moduleCount-8-3][Math.floor(c/3)]=d}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=f.getBCHTypeInfo(c),e=0;15>e;e++){var g=!a&&1==(1&d>>e);6>e?this.modules[e][8]=g:8>e?this.modules[e+1][8]=g:this.modules[this.moduleCount-15+e][8]=g}for(var e=0;15>e;e++){var g=!a&&1==(1&d>>e);8>e?this.modules[8][this.moduleCount-e-1]=g:9>e?this.modules[8][15-e-1+1]=g:this.modules[8][15-e-1]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,g=0,h=this.moduleCount-1;h>0;h-=2)for(6==h&&h--;;){for(var i=0;2>i;i++)if(null==this.modules[d][h-i]){var j=!1;g<a.length&&(j=1==(1&a[g]>>>e));var k=f.getMask(b,d,h-i);k&&(j=!j),this.modules[d][h-i]=j,e--,-1==e&&(g++,e=7)}if(d+=c,0>d||this.moduleCount<=d){d-=c,c=-c;break}}}},b.PAD0=236,b.PAD1=17,b.createData=function(a,c,d){for(var e=j.getRSBlocks(a,c),g=new k,h=0;h<d.length;h++){var i=d[h];g.put(i.mode,4),g.put(i.getLength(),f.getLengthInBits(i.mode,a)),i.write(g)}for(var l=0,h=0;h<e.length;h++)l+=e[h].dataCount;if(g.getLengthInBits()>8*l)throw new Error("code length overflow. ("+g.getLengthInBits()+">"+8*l+")");for(g.getLengthInBits()+4<=8*l&&g.put(0,4);0!=g.getLengthInBits()%8;)g.putBit(!1);for(;;){if(g.getLengthInBits()>=8*l)break;if(g.put(b.PAD0,8),g.getLengthInBits()>=8*l)break;g.put(b.PAD1,8)}return b.createBytes(g,e)},b.createBytes=function(a,b){for(var c=0,d=0,e=0,g=new Array(b.length),h=new Array(b.length),j=0;j<b.length;j++){var k=b[j].dataCount,l=b[j].totalCount-k;d=Math.max(d,k),e=Math.max(e,l),g[j]=new Array(k);for(var m=0;m<g[j].length;m++)g[j][m]=255&a.buffer[m+c];c+=k;var n=f.getErrorCorrectPolynomial(l),o=new i(g[j],n.getLength()-1),p=o.mod(n);h[j]=new Array(n.getLength()-1);for(var m=0;m<h[j].length;m++){var q=m+p.getLength()-h[j].length;h[j][m]=q>=0?p.get(q):0}}for(var r=0,m=0;m<b.length;m++)r+=b[m].totalCount;for(var s=new Array(r),t=0,m=0;d>m;m++)for(var j=0;j<b.length;j++)m<g[j].length&&(s[t++]=g[j][m]);for(var m=0;e>m;m++)for(var j=0;j<b.length;j++)m<h[j].length&&(s[t++]=h[j][m]);return s};for(var c={MODE_NUMBER:1,MODE_ALPHA_NUM:2,MODE_8BIT_BYTE:4,MODE_KANJI:8},d={L:1,M:0,Q:3,H:2},e={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7},f={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,getBCHTypeInfo:function(a){for(var b=a<<10;f.getBCHDigit(b)-f.getBCHDigit(f.G15)>=0;)b^=f.G15<<f.getBCHDigit(b)-f.getBCHDigit(f.G15);return(a<<10|b)^f.G15_MASK},getBCHTypeNumber:function(a){for(var b=a<<12;f.getBCHDigit(b)-f.getBCHDigit(f.G18)>=0;)b^=f.G18<<f.getBCHDigit(b)-f.getBCHDigit(f.G18);return a<<12|b},getBCHDigit:function(a){for(var b=0;0!=a;)b++,a>>>=1;return b},getPatternPosition:function(a){return f.PATTERN_POSITION_TABLE[a-1]},getMask:function(a,b,c){switch(a){case e.PATTERN000:return 0==(b+c)%2;case e.PATTERN001:return 0==b%2;case e.PATTERN010:return 0==c%3;case e.PATTERN011:return 0==(b+c)%3;case e.PATTERN100:return 0==(Math.floor(b/2)+Math.floor(c/3))%2;case e.PATTERN101:return 0==b*c%2+b*c%3;case e.PATTERN110:return 0==(b*c%2+b*c%3)%2;case e.PATTERN111:return 0==(b*c%3+(b+c)%2)%2;default:throw new Error("bad maskPattern:"+a)}},getErrorCorrectPolynomial:function(a){for(var b=new i([1],0),c=0;a>c;c++)b=b.multiply(new i([1,g.gexp(c)],0));return b},getLengthInBits:function(a,b){if(b>=1&&10>b)switch(a){case c.MODE_NUMBER:return 10;case c.MODE_ALPHA_NUM:return 9;case c.MODE_8BIT_BYTE:return 8;case c.MODE_KANJI:return 8;default:throw new Error("mode:"+a)}else if(27>b)switch(a){case c.MODE_NUMBER:return 12;case c.MODE_ALPHA_NUM:return 11;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 10;default:throw new Error("mode:"+a)}else{if(!(41>b))throw new Error("type:"+b);switch(a){case c.MODE_NUMBER:return 14;case c.MODE_ALPHA_NUM:return 13;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 12;default:throw new Error("mode:"+a)}}},getLostPoint:function(a){for(var b=a.getModuleCount(),c=0,d=0;b>d;d++)for(var e=0;b>e;e++){for(var f=0,g=a.isDark(d,e),h=-1;1>=h;h++)if(!(0>d+h||d+h>=b))for(var i=-1;1>=i;i++)0>e+i||e+i>=b||(0!=h||0!=i)&&g==a.isDark(d+h,e+i)&&f++;f>5&&(c+=3+f-5)}for(var d=0;b-1>d;d++)for(var e=0;b-1>e;e++){var j=0;a.isDark(d,e)&&j++,a.isDark(d+1,e)&&j++,a.isDark(d,e+1)&&j++,a.isDark(d+1,e+1)&&j++,(0==j||4==j)&&(c+=3)}for(var d=0;b>d;d++)for(var e=0;b-6>e;e++)a.isDark(d,e)&&!a.isDark(d,e+1)&&a.isDark(d,e+2)&&a.isDark(d,e+3)&&a.isDark(d,e+4)&&!a.isDark(d,e+5)&&a.isDark(d,e+6)&&(c+=40);for(var e=0;b>e;e++)for(var d=0;b-6>d;d++)a.isDark(d,e)&&!a.isDark(d+1,e)&&a.isDark(d+2,e)&&a.isDark(d+3,e)&&a.isDark(d+4,e)&&!a.isDark(d+5,e)&&a.isDark(d+6,e)&&(c+=40);for(var k=0,e=0;b>e;e++)for(var d=0;b>d;d++)a.isDark(d,e)&&k++;var l=Math.abs(100*k/b/b-50)/5;return c+=10*l}},g={glog:function(a){if(1>a)throw new Error("glog("+a+")");return g.LOG_TABLE[a]},gexp:function(a){for(;0>a;)a+=255;for(;a>=256;)a-=255;return g.EXP_TABLE[a]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)},h=0;8>h;h++)g.EXP_TABLE[h]=1<<h;for(var h=8;256>h;h++)g.EXP_TABLE[h]=g.EXP_TABLE[h-4]^g.EXP_TABLE[h-5]^g.EXP_TABLE[h-6]^g.EXP_TABLE[h-8];for(var h=0;255>h;h++)g.LOG_TABLE[g.EXP_TABLE[h]]=h;i.prototype={get:function(a){return this.num[a]},getLength:function(){return this.num.length},multiply:function(a){for(var b=new Array(this.getLength()+a.getLength()-1),c=0;c<this.getLength();c++)for(var d=0;d<a.getLength();d++)b[c+d]^=g.gexp(g.glog(this.get(c))+g.glog(a.get(d)));return new i(b,0)},mod:function(a){if(this.getLength()-a.getLength()<0)return this;for(var b=g.glog(this.get(0))-g.glog(a.get(0)),c=new Array(this.getLength()),d=0;d<this.getLength();d++)c[d]=this.get(d);for(var d=0;d<a.getLength();d++)c[d]^=g.gexp(g.glog(a.get(d))+b);return new i(c,0).mod(a)}},j.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],j.getRSBlocks=function(a,b){var c=j.getRsBlockTable(a,b);if(void 0==c)throw new Error("bad rs block @ typeNumber:"+a+"/errorCorrectLevel:"+b);for(var d=c.length/3,e=[],f=0;d>f;f++)for(var g=c[3*f+0],h=c[3*f+1],i=c[3*f+2],k=0;g>k;k++)e.push(new j(h,i));return e},j.getRsBlockTable=function(a,b){switch(b){case d.L:return j.RS_BLOCK_TABLE[4*(a-1)+0];case d.M:return j.RS_BLOCK_TABLE[4*(a-1)+1];case d.Q:return j.RS_BLOCK_TABLE[4*(a-1)+2];case d.H:return j.RS_BLOCK_TABLE[4*(a-1)+3];default:return void 0}},k.prototype={get:function(a){var b=Math.floor(a/8);return 1==(1&this.buffer[b]>>>7-a%8)},put:function(a,b){for(var c=0;b>c;c++)this.putBit(1==(1&a>>>b-c-1))},getLengthInBits:function(){return this.length},putBit:function(a){var b=Math.floor(this.length/8);this.buffer.length<=b&&this.buffer.push(0),a&&(this.buffer[b]|=128>>>this.length%8),this.length++}};var l=[[17,14,11,7],[32,26,20,14],[53,42,32,24],[78,62,46,34],[106,84,60,44],[134,106,74,58],[154,122,86,64],[192,152,108,84],[230,180,130,98],[271,213,151,119],[321,251,177,137],[367,287,203,155],[425,331,241,177],[458,362,258,194],[520,412,292,220],[586,450,322,250],[644,504,364,280],[718,560,394,310],[792,624,442,338],[858,666,482,382],[929,711,509,403],[1003,779,565,439],[1091,857,611,461],[1171,911,661,511],[1273,997,715,535],[1367,1059,751,593],[1465,1125,805,625],[1528,1190,868,658],[1628,1264,908,698],[1732,1370,982,742],[1840,1452,1030,790],[1952,1538,1112,842],[2068,1628,1168,898],[2188,1722,1228,958],[2303,1809,1283,983],[2431,1911,1351,1051],[2563,1989,1423,1093],[2699,2099,1499,1139],[2809,2213,1579,1219],[2953,2331,1663,1273]],o=function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){function g(a,b){var c=document.createElementNS("http://www.w3.org/2000/svg",a);for(var d in b)b.hasOwnProperty(d)&&c.setAttribute(d,b[d]);return c}var b=this._htOption,c=this._el,d=a.getModuleCount();Math.floor(b.width/d),Math.floor(b.height/d),this.clear();var h=g("svg",{viewBox:"0 0 "+String(d)+" "+String(d),width:"100%",height:"100%",fill:b.colorLight});h.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink"),c.appendChild(h),h.appendChild(g("rect",{fill:b.colorDark,width:"1",height:"1",id:"template"}));for(var i=0;d>i;i++)for(var j=0;d>j;j++)if(a.isDark(i,j)){var k=g("use",{x:String(i),y:String(j)});k.setAttributeNS("http://www.w3.org/1999/xlink","href","#template"),h.appendChild(k)}},a.prototype.clear=function(){for(;this._el.hasChildNodes();)this._el.removeChild(this._el.lastChild)},a}(),p="svg"===document.documentElement.tagName.toLowerCase(),q=p?o:m()?function(){function a(){this._elImage.src=this._elCanvas.toDataURL("image/png"),this._elImage.style.display="block",this._elCanvas.style.display="none"}function d(a,b){var c=this;if(c._fFail=b,c._fSuccess=a,null===c._bSupportDataURI){var d=document.createElement("img"),e=function(){c._bSupportDataURI=!1,c._fFail&&_fFail.call(c)},f=function(){c._bSupportDataURI=!0,c._fSuccess&&c._fSuccess.call(c)};return d.onabort=e,d.onerror=e,d.onload=f,d.src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",void 0}c._bSupportDataURI===!0&&c._fSuccess?c._fSuccess.call(c):c._bSupportDataURI===!1&&c._fFail&&c._fFail.call(c)}if(this._android&&this._android<=2.1){var b=1/window.devicePixelRatio,c=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(a,d,e,f,g,h,i,j){if("nodeName"in a&&/img/i.test(a.nodeName))for(var l=arguments.length-1;l>=1;l--)arguments[l]=arguments[l]*b;else"undefined"==typeof j&&(arguments[1]*=b,arguments[2]*=b,arguments[3]*=b,arguments[4]*=b);c.apply(this,arguments)}}var e=function(a,b){this._bIsPainted=!1,this._android=n(),this._htOption=b,this._elCanvas=document.createElement("canvas"),this._elCanvas.width=b.width,this._elCanvas.height=b.height,a.appendChild(this._elCanvas),this._el=a,this._oContext=this._elCanvas.getContext("2d"),this._bIsPainted=!1,this._elImage=document.createElement("img"),this._elImage.style.display="none",this._el.appendChild(this._elImage),this._bSupportDataURI=null};return e.prototype.draw=function(a){var b=this._elImage,c=this._oContext,d=this._htOption,e=a.getModuleCount(),f=d.width/e,g=d.height/e,h=Math.round(f),i=Math.round(g);b.style.display="none",this.clear();for(var j=0;e>j;j++)for(var k=0;e>k;k++){var l=a.isDark(j,k),m=k*f,n=j*g;c.strokeStyle=l?d.colorDark:d.colorLight,c.lineWidth=1,c.fillStyle=l?d.colorDark:d.colorLight,c.fillRect(m,n,f,g),c.strokeRect(Math.floor(m)+.5,Math.floor(n)+.5,h,i),c.strokeRect(Math.ceil(m)-.5,Math.ceil(n)-.5,h,i)}this._bIsPainted=!0},e.prototype.makeImage=function(){this._bIsPainted&&d.call(this,a)},e.prototype.isPainted=function(){return this._bIsPainted},e.prototype.clear=function(){this._oContext.clearRect(0,0,this._elCanvas.width,this._elCanvas.height),this._bIsPainted=!1},e.prototype.round=function(a){return a?Math.floor(1e3*a)/1e3:a},e}():function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){for(var b=this._htOption,c=this._el,d=a.getModuleCount(),e=Math.floor(b.width/d),f=Math.floor(b.height/d),g=['<table style="border:0;border-collapse:collapse;">'],h=0;d>h;h++){g.push("<tr>");for(var i=0;d>i;i++)g.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:'+e+"px;height:"+f+"px;background-color:"+(a.isDark(h,i)?b.colorDark:b.colorLight)+';"></td>');g.push("</tr>")}g.push("</table>"),c.innerHTML=g.join("");var j=c.childNodes[0],k=(b.width-j.offsetWidth)/2,l=(b.height-j.offsetHeight)/2;k>0&&l>0&&(j.style.margin=l+"px "+k+"px")},a.prototype.clear=function(){this._el.innerHTML=""},a}();QRCode=function(a,b){if(this._htOption={width:256,height:256,typeNumber:4,colorDark:"#000000",colorLight:"#ffffff",correctLevel:d.H},"string"==typeof b&&(b={text:b}),b)for(var c in b)this._htOption[c]=b[c];"string"==typeof a&&(a=document.getElementById(a)),this._android=n(),this._el=a,this._oQRCode=null,this._oDrawing=new q(this._el,this._htOption),this._htOption.text&&this.makeCode(this._htOption.text)},QRCode.prototype.makeCode=function(a){this._oQRCode=new b(r(a,this._htOption.correctLevel),this._htOption.correctLevel),this._oQRCode.addData(a),this._oQRCode.make(),this._el.title=a,this._oDrawing.draw(this._oQRCode),this.makeImage()},QRCode.prototype.makeImage=function(){"function"==typeof this._oDrawing.makeImage&&(!this._android||this._android>=3)&&this._oDrawing.makeImage()},QRCode.prototype.clear=function(){this._oDrawing.clear()},QRCode.CorrectLevel=d}();
+</script>
+<style>
+  :root {
+    --bg: #f2f3f5;
+    --surface: #ffffff;
+    --text: #0b0b0c;
+    --muted: #55585e;
+    --line: #d5d8dd;
+    --dark: #111214;
+    --dark-2: #2a2c30;
+    --green: #08873a;
+    --green-dark: #066a2d;
+    --red: #c4161c;
+    --amber: #f5b400;
+    --radius: 16px;
+    --header-h: 64px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.35;
+    touch-action: manipulation;
+    overscroll-behavior-y: none;
+  }
+  body.locked { overflow: hidden; }
+  button, .btn, input[type="submit"] {
+    font: inherit;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    border: 0;
+  }
+  button:disabled { cursor: not-allowed; }
+  :focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  /* ---------- Generic buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+    min-height: 52px; padding: 0 20px;
+    border-radius: 12px;
+    background: var(--dark); color: #fff;
+    font-weight: 700; font-size: 1rem;
+    transition: transform .06s ease, background .15s ease;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-secondary { background: #e4e6ea; color: var(--text); }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:active { background: var(--green-dark); }
+  .btn-danger { background: #fde8e8; color: var(--red); }
+  .btn-block { width: 100%; }
+  .btn-lg { min-height: 64px; font-size: 1.2rem; border-radius: 14px; }
+  .icon-btn {
+    width: 48px; height: 48px; flex: 0 0 48px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px; background: transparent; color: inherit;
+  }
+  .icon-btn:active { background: rgba(255,255,255,.15); }
+  .icon-btn svg { width: 26px; height: 26px; }
+
+  /* ---------- POS: top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 30;
+    height: var(--header-h);
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 8px 0 16px;
+    background: var(--dark); color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.25);
+  }
+  .topbar h1 {
+    flex: 1; min-width: 0; margin: 0;
+    font-size: 1.2rem; font-weight: 800; letter-spacing: .2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cart-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 48px; padding: 0 14px 0 10px;
+    border-radius: 999px;
+    background: #fff; color: var(--dark);
+    font-weight: 800; font-size: 1.1rem;
+    transition: transform .1s ease;
+  }
+  .cart-chip:active { transform: scale(.96); }
+  .cart-chip svg { width: 24px; height: 24px; }
+  .cart-chip .badge {
+    min-width: 26px; height: 26px; padding: 0 7px;
+    border-radius: 999px; background: var(--green); color: #fff;
+    font-size: .9rem; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .cart-chip.empty .badge { background: #9aa0a6; }
+  .bump { animation: bump .25s ease; }
+  @keyframes bump { 0%{transform:scale(1)} 40%{transform:scale(1.12)} 100%{transform:scale(1)} }
+
+  /* ---------- POS: cart panel (drop-down) ---------- */
+  .cart-backdrop {
+    position: fixed; inset: var(--header-h) 0 0 0; z-index: 20;
+    background: rgba(0,0,0,.45);
+  }
+  .cart-panel {
+    position: fixed; left: 0; right: 0; top: var(--header-h); z-index: 25;
+    max-height: calc(100dvh - var(--header-h) - 100px);
+    display: flex; flex-direction: column;
+    background: var(--surface);
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.3);
+    animation: slideDown .18s ease;
+    max-width: 720px; margin: 0 auto;
+  }
+  @keyframes slideDown { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .cart-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 8px; font-weight: 800; font-size: 1.15rem;
+  }
+  .cart-list { list-style: none; margin: 0; padding: 0 8px; overflow-y: auto; }
+  .cart-row {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px;
+    padding: 10px 8px; border-bottom: 1px solid var(--line);
+  }
+  .cart-row:last-child { border-bottom: 0; }
+  .cart-row .name { font-weight: 700; overflow-wrap: anywhere; }
+  .cart-row .sub { color: var(--muted); font-size: .9rem; }
+  .qty { display: inline-flex; align-items: center; gap: 4px; }
+  .qty button {
+    width: 46px; height: 46px; border-radius: 12px;
+    background: var(--dark); color: #fff; font-size: 1.5rem; font-weight: 800; line-height: 1;
+  }
+  .qty button.minus { background: #e4e6ea; color: var(--text); }
+  .qty span { min-width: 34px; text-align: center; font-weight: 800; font-size: 1.15rem; }
+  .row-del {
+    width: 46px; height: 46px; border-radius: 12px; background: #fde8e8; color: var(--red);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .row-del svg { width: 22px; height: 22px; }
+  .row-total { grid-column: 1 / -1; display: none; }
+  .cart-empty { padding: 24px 16px; text-align: center; color: var(--muted); }
+  .cart-foot {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    padding: 12px 16px 16px; border-top: 2px solid var(--line);
+  }
+  .cart-sum {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;
+  }
+
+  /* ---------- POS: catalog ---------- */
+  .catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    padding: 12px 12px calc(110px + var(--safe-b));
+  }
+  @media (min-width: 900px) {
+    .catalog { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; padding: 16px 16px calc(120px + var(--safe-b)); }
+  }
+  .tile {
+    position: relative;
+    min-height: 120px;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between;
+    padding: 16px;
+    border-radius: var(--radius);
+    background: var(--dark); color: #fff;
+    text-align: left;
+    box-shadow: 0 3px 0 #000;
+    transition: transform .06s ease, box-shadow .06s ease;
+  }
+  .tile:active { transform: translateY(3px); box-shadow: 0 0 0 #000; }
+  .tile.in-cart { background: var(--dark-2); outline: 3px solid var(--green); outline-offset: -3px; }
+  .tile-name { font-size: 1.25rem; font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; padding-right: 36px; }
+  .tile-price { font-size: 1.15rem; font-weight: 700; color: #9ff0bb; margin-top: 10px; }
+  .tile-qty {
+    position: absolute; top: 10px; right: 10px;
+    min-width: 34px; height: 34px; padding: 0 8px; border-radius: 999px;
+    background: var(--green); color: #fff; font-weight: 800; font-size: 1.05rem;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .tile.flash { animation: flash .3s ease; }
+  @keyframes flash { 0% { background: var(--green); } 100% { } }
+  .catalog-empty {
+    grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--muted);
+  }
+
+  /* ---------- POS: pay bar ---------- */
+  .paybar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
+    padding: 12px 12px calc(12px + var(--safe-b));
+    background: linear-gradient(to top, var(--bg) 70%, rgba(242,243,245,0));
+  }
+  .btn-pay {
+    display: block; width: 100%; max-width: 720px; margin: 0 auto;
+    min-height: 72px; border-radius: 18px;
+    background: var(--green); color: #fff;
+    font-size: 1.45rem; font-weight: 900; letter-spacing: .3px;
+    box-shadow: 0 4px 0 var(--green-dark), 0 8px 20px rgba(8,135,58,.35);
+    transition: transform .06s ease, box-shadow .06s ease;
+  }
+  .btn-pay:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 var(--green-dark); }
+  .btn-pay:disabled { background: #b9bdc3; color: #f4f4f4; box-shadow: none; }
+
+  /* ---------- Settings view ---------- */
+  .settings {
+    position: fixed; inset: 0; z-index: 50;
+    background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .settings-bar {
+    position: sticky; top: 0; z-index: 2;
+    height: var(--header-h);
+    display: flex; align-items: center; gap: 8px; padding: 0 8px 0 16px;
+    background: var(--dark); color: #fff;
+  }
+  .settings-bar h2 { flex: 1; margin: 0; font-size: 1.2rem; font-weight: 800; }
+  .settings-inner { max-width: 640px; margin: 0 auto; padding: 16px 16px calc(32px + var(--safe-b)); }
+  .welcome {
+    background: var(--dark); color: #fff; border-radius: var(--radius);
+    padding: 20px; margin-bottom: 16px;
+  }
+  .welcome h3 { margin: 0 0 6px; font-size: 1.5rem; }
+  .welcome p { margin: 0; color: #d6d8dc; }
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #2f3237; }
+  .brand-mark { width: 52px; height: 52px; flex: 0 0 52px; }
+  .brand-name { font-size: 1.6rem; font-weight: 900; letter-spacing: -.3px; line-height: 1.1; }
+  .brand-tagline { color: var(--amber); font-weight: 700; font-size: .95rem; margin-top: 2px; }
+  .about-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .about-brand .brand-mark { width: 36px; height: 36px; flex-basis: 36px; }
+  .about-brand strong { font-size: 1.15rem; }
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 18px; margin-bottom: 16px;
+    border: 1px solid var(--line);
+  }
+  .card h3 { margin: 0 0 12px; font-size: 1.15rem; }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-weight: 700; margin-bottom: 6px; }
+  .field .hint { font-size: .88rem; color: var(--muted); margin-top: 5px; }
+  .field .error { font-size: .9rem; color: var(--red); font-weight: 700; margin-top: 5px; }
+  input[type="text"], input[type="tel"], input[type="number"] {
+    width: 100%; min-height: 52px; padding: 0 14px;
+    font: inherit; font-size: 1.05rem; color: var(--text);
+    background: #fff; border: 2px solid var(--line); border-radius: 12px;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus { border-color: var(--dark); outline: none; }
+  input.invalid { border-color: var(--red); }
+  .menu-list { list-style: none; margin: 0 0 14px; padding: 0; }
+  .menu-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 0; border-bottom: 1px solid var(--line);
+  }
+  .menu-row:last-child { border-bottom: 0; }
+  .menu-row .m-name { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+  .menu-row .m-price { font-weight: 700; white-space: nowrap; margin-right: 4px; }
+  .menu-row .mini {
+    width: 42px; height: 42px; flex: 0 0 42px; border-radius: 10px;
+    background: #e4e6ea; color: var(--text);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800;
+  }
+  .menu-row .mini:disabled { opacity: .35; }
+  .menu-row .mini.del { background: #fde8e8; color: var(--red); }
+  .menu-row .mini.ok { background: var(--green); color: #fff; }
+  .menu-row .mini svg { width: 20px; height: 20px; }
+  .menu-row.editing { flex-wrap: wrap; }
+  .menu-row.editing input { min-height: 46px; }
+  .menu-row.editing .e-name { flex: 1 1 140px; }
+  .menu-row.editing .e-price { flex: 0 0 90px; }
+  .menu-empty { color: var(--muted); padding: 6px 0 14px; }
+  .add-form { display: grid; grid-template-columns: 1fr 100px; gap: 8px; }
+  .add-form .btn { grid-column: 1 / -1; }
+  .add-form .error { grid-column: 1 / -1; color: var(--red); font-weight: 700; font-size: .9rem; }
+  .row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .row-actions .btn { flex: 1 1 auto; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat { background: var(--bg); border-radius: 12px; padding: 12px; }
+  .stat .label { font-size: .85rem; color: var(--muted); font-weight: 700; }
+  .stat .value { font-size: 1.5rem; font-weight: 900; }
+  table.sales { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: .98rem; }
+  table.sales th, table.sales td { padding: 8px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+  table.sales th { font-size: .82rem; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  table.sales td.num, table.sales th.num { text-align: right; white-space: nowrap; }
+  .orders-list { list-style: none; margin: 0 0 14px; padding: 0; }
+  .orders-list li {
+    display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line);
+  }
+  .orders-list .o-info { flex: 1; min-width: 0; }
+  .orders-list .o-time { font-weight: 700; }
+  .orders-list .o-items { font-size: .88rem; color: var(--muted); overflow-wrap: anywhere; }
+  .orders-list .o-sum { font-weight: 800; white-space: nowrap; }
+  .subhead { font-weight: 800; margin: 6px 0 6px; }
+  .save-bar { position: sticky; bottom: 0; padding: 12px 0 calc(4px + var(--safe-b)); background: linear-gradient(to top, var(--bg) 75%, rgba(242,243,245,0)); }
+  .form-error { color: var(--red); font-weight: 700; margin: 0 0 10px; text-align: center; }
+
+  /* ---------- Payment view ---------- */
+  .pay {
+    position: fixed; inset: 0; z-index: 60;
+    background: #fff; overflow-y: auto;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 16px 16px calc(16px + var(--safe-b));
+    animation: fadeIn .15s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .pay-inner { width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .pay-title { font-size: 1.1rem; font-weight: 800; color: var(--muted); margin: 4px 0 0; text-align: center; }
+  .pay-amount { font-size: clamp(3rem, 15vw, 5rem); font-weight: 900; line-height: 1.05; margin: 4px 0 2px; letter-spacing: -1px; }
+  .pay-label { font-size: .95rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+  .qr-wrap {
+    margin: 14px 0; padding: 16px; background: #fff;
+    border: 4px solid var(--dark); border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-wrap img, .qr-wrap canvas { display: block; }
+  .qr-error { max-width: 280px; text-align: center; color: var(--red); font-weight: 700; padding: 20px; }
+  .pay-number { font-size: 1.5rem; font-weight: 900; letter-spacing: .5px; margin: 0; }
+  .pay-msg { color: var(--muted); margin: 2px 0 12px; text-align: center; }
+  .pay-actions { width: 100%; display: grid; gap: 10px; margin-top: auto; padding-top: 10px; }
+  .pay-actions .btn-done { min-height: 76px; font-size: 1.45rem; font-weight: 900; border-radius: 18px; }
+
+  /* ---------- Betalsätt (flikar) ---------- */
+  .pay-tabs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    width: 100%; padding: 5px; margin: 10px 0 8px;
+    background: #e4e6ea; border-radius: 14px;
+  }
+  .pay-tab {
+    min-height: 50px; border-radius: 10px;
+    background: transparent; color: var(--text);
+    font-weight: 800; font-size: 1.1rem;
+  }
+  .pay-tab.active { background: var(--dark); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .pay-method { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+  /* ---------- Kontant ---------- */
+  .cash-quick {
+    width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0 10px;
+  }
+  .cash-quick button {
+    min-height: 60px; border-radius: 12px;
+    background: var(--dark); color: #fff; font-weight: 800; font-size: 1.15rem;
+  }
+  .cash-quick button.selected { background: var(--green); }
+  .cash-quick button:active { transform: scale(.97); }
+  #cashInput { text-align: center; font-size: 1.2rem; font-weight: 700; }
+  .cash-change {
+    width: 100%; margin: 12px 0 4px; padding: 16px; border-radius: 16px;
+    background: var(--bg); text-align: center;
+  }
+  .cash-change .pay-label { display: block; }
+  .cash-change .amount { font-size: clamp(2.2rem, 11vw, 3.4rem); font-weight: 900; line-height: 1.1; }
+  .cash-change.ok { background: #e3f6ea; }
+  .cash-change.ok .amount { color: var(--green-dark); }
+  .cash-change.short { background: #fde8e8; }
+  .cash-change.short .amount { color: var(--red); }
+
+  /* ---------- Ångra-rad ---------- */
+  .undo-bar {
+    position: fixed; left: 12px; right: 12px; z-index: 16;
+    bottom: calc(96px + var(--safe-b));
+    max-width: 720px; margin: 0 auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 6px 6px 16px; border-radius: 14px;
+    background: var(--dark); color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    animation: fadeIn .12s ease;
+  }
+  .undo-bar .undo-text { flex: 1; min-width: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .undo-bar button {
+    min-height: 48px; padding: 0 18px; border-radius: 10px;
+    background: var(--amber); color: #111; font-weight: 900; font-size: 1.05rem;
+  }
+  .undo-bar button:active { transform: scale(.96); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(100px + var(--safe-b)); z-index: 80;
+    transform: translateX(-50%);
+    background: var(--dark); color: #fff; padding: 12px 18px; border-radius: 12px;
+    font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    animation: fadeIn .15s ease; max-width: calc(100vw - 32px); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= KASSA (huvudvy) ================= -->
+<div id="posView">
+  <header class="topbar">
+    <h1 id="posTitle">Klubbkassan</h1>
+    <button id="cartBtn" class="cart-chip empty" aria-label="Visa varukorg" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1.5"/><circle cx="19" cy="21" r="1.5"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+      <span id="cartCount" class="badge">0</span>
+      <span id="cartTotal">0 kr</span>
+    </button>
+    <button id="gearBtn" class="icon-btn" aria-label="Inställningar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <div id="cartBackdrop" class="cart-backdrop" hidden></div>
+  <section id="cartPanel" class="cart-panel" hidden aria-label="Varukorg">
+    <div class="cart-head">
+      <span>Varukorg</span>
+      <button class="icon-btn" data-action="close-cart" aria-label="Stäng varukorg" style="color:var(--text)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <ul id="cartList" class="cart-list"></ul>
+    <div class="cart-foot">
+      <div class="cart-sum"><span>Totalt</span><span id="cartSum">0 kr</span></div>
+      <button class="btn btn-danger" data-action="clear-cart">Rensa korg</button>
+      <button class="btn" data-action="close-cart">Fortsätt handla</button>
+    </div>
+  </section>
+
+  <main id="catalog" class="catalog" aria-label="Varor"></main>
+
+  <div id="undoBar" class="undo-bar" hidden role="status" aria-live="polite">
+    <span id="undoText" class="undo-text"></span>
+    <button id="undoBtn" type="button">Ångra</button>
+  </div>
+
+  <div class="paybar">
+    <button id="payBtn" class="btn-pay" disabled>Ta betalt (0 kr)</button>
+  </div>
+</div>
+
+<!-- ================= INSTÄLLNINGAR / WIZARD ================= -->
+<section id="settingsView" class="settings" hidden aria-label="Inställningar">
+  <div class="settings-bar">
+    <h2 id="settingsHeading">Inställningar</h2>
+    <button id="settingsClose" class="icon-btn" aria-label="Stäng inställningar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="settings-inner">
+    <div id="welcome" class="welcome" hidden>
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><path d="M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z" fill="#08873a"/><path d="M256 84 400 134v118c0 92-62 158-144 188Z" fill="#066a2d"/><path d="M190 262l46 46 90-100" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div>
+          <div class="brand-name">Klubbkassan</div>
+          <div class="brand-tagline">Kassan för föreningens kiosk, café och evenemang</div>
+        </div>
+      </div>
+      <h3>Välkommen! 👋</h3>
+      <p>Fyll i föreningens Swish-nummer, ge kassan ett namn och lägg upp det ni säljer. Sedan kan du ta betalt med Swish eller kontant.</p>
+    </div>
+
+    <div class="card">
+      <h3>Betalning</h3>
+      <div class="field">
+        <label for="swishInput">Swish-nummer (mottagare)</label>
+        <input id="swishInput" type="tel" inputmode="numeric" autocomplete="off" placeholder="123 456 78 90 eller 070-123 45 67">
+        <div class="hint">Föreningar: 123-nummer (10 siffror). Privatpersoner: mobilnummer som börjar på 07.</div>
+        <div id="swishError" class="error" hidden></div>
+      </div>
+      <div class="field">
+        <label for="titleInput">Namn på kassan</label>
+        <input id="titleInput" type="text" maxlength="40" placeholder="t.ex. P14 Kiosk, Vårloppis, Luciacaféet">
+      </div>
+      <div class="field">
+        <label for="messageInput">Meddelande på betalningen</label>
+        <input id="messageInput" type="text" maxlength="50" placeholder="Kiosk">
+        <div class="hint">Visas i mottagarens Swish. Max 50 tecken. Å, ä och ö skrivs som a och o i QR-koden.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Meny</h3>
+      <ul id="menuList" class="menu-list"></ul>
+      <form id="addForm" class="add-form" autocomplete="off" novalidate>
+        <input id="addName" type="text" maxlength="30" placeholder="Varans namn" aria-label="Varans namn">
+        <input id="addPrice" type="number" inputmode="numeric" min="1" step="1" placeholder="Pris" aria-label="Pris i kronor">
+        <div id="addError" class="error" hidden></div>
+        <button type="submit" class="btn">+ Lägg till vara</button>
+      </form>
+      <div class="row-actions">
+        <button type="button" class="btn btn-secondary" data-action="default-menu">Ladda standardmeny</button>
+      </div>
+    </div>
+
+    <div class="card" id="statsCard">
+      <h3>Försäljning</h3>
+      <div id="statsBody"></div>
+    </div>
+
+    <div class="card">
+      <div class="about-brand">
+        <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#111214"/><path d="M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z" fill="#08873a"/><path d="M256 84 400 134v118c0 92-62 158-144 188Z" fill="#066a2d"/><path d="M190 262l46 46 90-100" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><strong>Klubbkassan</strong><div style="color:var(--muted);font-size:.9rem">Betala med Swish eller kontant</div></div>
+      </div>
+      <h3 style="margin-top:4px">App &amp; offline</h3>
+      <p id="appStatus" style="margin:0 0 10px;color:var(--muted)"></p>
+      <button type="button" id="installBtn" class="btn btn-block" hidden>Installera på hemskärmen</button>
+    </div>
+
+    <div class="save-bar">
+      <p id="formError" class="form-error" hidden></p>
+      <button id="saveBtn" class="btn btn-green btn-lg btn-block">Spara och gå till kassan</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BETALNING ================= -->
+<section id="payView" class="pay" hidden aria-label="Betalning" role="dialog" aria-modal="true">
+  <div class="pay-inner">
+    <p id="payTitle" class="pay-title">Klubbkassan</p>
+    <div class="pay-label">Att betala</div>
+    <div id="payAmount" class="pay-amount">0 kr</div>
+    <div class="pay-tabs" role="tablist" aria-label="Betalsätt">
+      <button id="tabSwish" class="pay-tab active" role="tab" aria-selected="true" data-method="swish">Swish</button>
+      <button id="tabCash" class="pay-tab" role="tab" aria-selected="false" data-method="cash">Kontant</button>
+    </div>
+    <div id="paySwish" class="pay-method">
+      <div id="qrWrap" class="qr-wrap"><div id="qr"></div></div>
+      <div class="pay-label">Swisha till</div>
+      <p id="payNumber" class="pay-number"></p>
+      <p id="payMsg" class="pay-msg"></p>
+    </div>
+    <div id="payCash" class="pay-method" hidden>
+      <div class="pay-label">Kunden ger</div>
+      <div id="cashQuick" class="cash-quick"></div>
+      <input id="cashInput" type="number" inputmode="numeric" min="0" step="1" placeholder="Annat belopp (kr)" aria-label="Mottaget belopp">
+      <div id="cashChange" class="cash-change"></div>
+    </div>
+    <div class="pay-actions">
+      <button id="doneBtn" class="btn btn-green btn-block btn-done">Klar / Ny kund</button>
+      <button id="cancelBtn" class="btn btn-secondary btn-lg btn-block">Avbryt</button>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= Lagring ================= */
+  const KEYS = {
+    settings: 'klubbkassan.settings',
+    menu: 'klubbkassan.menu',
+    orders: 'klubbkassan.orders',
+    cart: 'klubbkassan.cart'
+  };
+  const BRAND = 'Klubbkassan';
+
+  // Flytta data från den tidigare versionen ("Kiosken") så att inget försvinner.
+  try {
+    Object.keys(KEYS).forEach((k) => {
+      const oldKey = 'kiosken.' + k;
+      const old = localStorage.getItem(oldKey);
+      if (old !== null && localStorage.getItem(KEYS[k]) === null) localStorage.setItem(KEYS[k], old);
+      if (old !== null) localStorage.removeItem(oldKey);
+    });
+  } catch (e) {}
+  function load(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch (e) { toast('Kunde inte spara data (lagringen är full eller blockerad)'); }
+  }
+
+  const DEFAULT_MENU = [
+    { name: 'Kaffe', price: 15 },
+    { name: 'Festis', price: 10 },
+    { name: 'Kaka', price: 10 },
+    { name: 'Toast', price: 25 },
+    { name: 'Korv med bröd', price: 20 }
+  ];
+
+  const state = {
+    settings: Object.assign({ swish: '', title: BRAND, message: 'Kiosk' }, load(KEYS.settings, {})),
+    menu: load(KEYS.menu, []),
+    orders: load(KEYS.orders, []),
+    cart: load(KEYS.cart, {}),   // { itemId: qty }
+    editingId: null,
+    cartOpen: false
+  };
+
+  /* ================= Hjälpfunktioner ================= */
+  const $ = (id) => document.getElementById(id);
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const kr = (n) => n.toLocaleString('sv-SE') + ' kr';
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const vibrate = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
+
+  let toastTimer;
+  function toast(msg) {
+    let el = document.querySelector('.toast');
+    if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
+    el.textContent = msg;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.remove(), 2200);
+  }
+
+  /** Tar bort mellanslag/bindestreck och gör om +46 till 0. */
+  function normalizeSwish(raw) {
+    let s = String(raw || '').replace(/[^\d+]/g, '');
+    if (s.startsWith('+46')) s = '0' + s.slice(3);
+    else if (s.startsWith('0046')) s = '0' + s.slice(4);
+    else if (/^467\d{8}$/.test(s)) s = '0' + s.slice(2);
+    return s.replace(/\D/g, '');
+  }
+  function swishError(num) {
+    if (!num) return 'Ange ett Swish-nummer.';
+    if (/^123\d{7}$/.test(num)) return '';
+    if (/^07\d{8}$/.test(num)) return '';
+    if (num.startsWith('123')) return '123-nummer ska ha exakt 10 siffror.';
+    if (num.startsWith('07')) return 'Mobilnummer ska ha exakt 10 siffror (07X-XXX XX XX).';
+    return 'Ogiltigt nummer. Använd ett 123-nummer eller ett mobilnummer som börjar på 07.';
+  }
+  function formatSwish(num) {
+    if (/^123\d{7}$/.test(num)) return num.replace(/^(\d{3})(\d{3})(\d{2})(\d{2})$/, '$1 $2 $3 $4');
+    if (/^07\d{8}$/.test(num)) return num.replace(/^(\d{3})(\d{3})(\d{2})(\d{2})$/, '$1-$2 $3 $4');
+    return num;
+  }
+  /** Meddelande för QR: inga semikolon, endast ASCII (qrcodejs lägger annars till en BOM som kan störa Swish). */
+  function qrMessage(msg) {
+    return String(msg || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/;/g, ',')
+      .replace(/[^\x20-\x7E]/g, '')
+      .trim().slice(0, 50);
+  }
+  function parsePrice(v) {
+    const n = Number(String(v).replace(',', '.'));
+    if (!isFinite(n) || n <= 0 || n > 100000) return null;
+    return Math.round(n);
+  }
+
+  function itemById(id) { return state.menu.find((m) => m.id === id); }
+  function cartLines() {
+    return state.menu
+      .filter((m) => state.cart[m.id] > 0)
+      .map((m) => ({ id: m.id, name: m.name, price: m.price, qty: state.cart[m.id], sum: m.price * state.cart[m.id] }));
+  }
+  function cartTotal() { return cartLines().reduce((a, l) => a + l.sum, 0); }
+  function cartCount() { return cartLines().reduce((a, l) => a + l.qty, 0); }
+  function reconcileCart() {
+    Object.keys(state.cart).forEach((id) => { if (!itemById(id) || !(state.cart[id] > 0)) delete state.cart[id]; });
+    save(KEYS.cart, state.cart);
+  }
+  function lockScroll() {
+    const locked = !$('settingsView').hidden || !$('payView').hidden || state.cartOpen;
+    document.body.classList.toggle('locked', locked);
+  }
+
+  /* ================= Kassa ================= */
+  const catalogEl = $('catalog');
+
+  function renderCatalog() {
+    if (!state.menu.length) {
+      catalogEl.innerHTML = '<div class="catalog-empty"><p><strong>Menyn är tom.</strong></p><p>Lägg till varor under inställningar.</p><button class="btn" data-action="open-settings">Öppna inställningar</button></div>';
+      return;
+    }
+    catalogEl.innerHTML = state.menu.map((m) => {
+      const q = state.cart[m.id] || 0;
+      return '<button class="tile' + (q ? ' in-cart' : '') + '" data-add="' + esc(m.id) + '" aria-label="Lägg till ' + esc(m.name) + ', ' + kr(m.price) + '">' +
+        '<span class="tile-name">' + esc(m.name) + '</span>' +
+        '<span class="tile-price">' + kr(m.price) + '</span>' +
+        (q ? '<span class="tile-qty">' + q + '</span>' : '') +
+        '</button>';
+    }).join('');
+  }
+
+  function renderCart() {
+    const lines = cartLines();
+    const total = cartTotal();
+    const count = cartCount();
+
+    $('cartCount').textContent = count;
+    $('cartTotal').textContent = kr(total);
+    $('cartBtn').classList.toggle('empty', count === 0);
+    $('cartSum').textContent = kr(total);
+
+    const payBtn = $('payBtn');
+    payBtn.textContent = 'Ta betalt (' + kr(total) + ')';
+    payBtn.disabled = total <= 0;
+
+    const list = $('cartList');
+    if (!lines.length) {
+      list.innerHTML = '<li class="cart-empty">Varukorgen är tom. Tryck på en vara för att lägga till den.</li>';
+    } else {
+      list.innerHTML = lines.map((l) =>
+        '<li class="cart-row">' +
+          '<div><div class="name">' + esc(l.name) + '</div><div class="sub">' + l.qty + ' × ' + kr(l.price) + ' = <strong>' + kr(l.sum) + '</strong></div></div>' +
+          '<div class="qty">' +
+            '<button class="minus" data-dec="' + esc(l.id) + '" aria-label="Minska antal">−</button>' +
+            '<span>' + l.qty + '</span>' +
+            '<button data-inc="' + esc(l.id) + '" aria-label="Öka antal">+</button>' +
+          '</div>' +
+          '<button class="row-del" data-del="' + esc(l.id) + '" aria-label="Ta bort rad">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
+          '</button>' +
+        '</li>'
+      ).join('');
+    }
+  }
+
+  function renderPOS() {
+    const title = state.settings.title || BRAND;
+    $('posTitle').textContent = title;
+    document.title = title === BRAND ? BRAND : title + ' · ' + BRAND;
+    renderCatalog();
+    renderCart();
+  }
+
+  function changeQty(id, delta) {
+    const q = (state.cart[id] || 0) + delta;
+    if (q <= 0) delete state.cart[id]; else state.cart[id] = q;
+    save(KEYS.cart, state.cart);
+    renderCatalog();
+    renderCart();
+  }
+
+  function bump(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+
+  catalogEl.addEventListener('click', (e) => {
+    const tile = e.target.closest('[data-add]');
+    if (tile) {
+      const id = tile.getAttribute('data-add');
+      changeQty(id, 1);
+      vibrate(12);
+      bump($('cartBtn'));
+      const fresh = catalogEl.querySelector('[data-add="' + CSS.escape(id) + '"]');
+      if (fresh) fresh.classList.add('flash');
+      pushUndo(id);
+      return;
+    }
+    if (e.target.closest('[data-action="open-settings"]')) openSettings();
+  });
+
+  /* ---- Ångra senaste tryck ---- */
+  const UNDO_MS = 4000;
+  let undoStack = [];
+  let undoTimer = null;
+
+  function showUndo() {
+    if (!undoStack.length) { hideUndo(); return; }
+    const id = undoStack[undoStack.length - 1];
+    const item = itemById(id);
+    if (!item) { undoStack.pop(); showUndo(); return; }
+    // Räkna hur många av samma vara som ligger i följd överst i stacken
+    let n = 0;
+    for (let i = undoStack.length - 1; i >= 0 && undoStack[i] === id; i--) n++;
+    $('undoText').textContent = '+' + n + ' ' + item.name;
+    $('undoBar').hidden = false;
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(hideUndo, UNDO_MS);
+  }
+  function hideUndo() {
+    clearTimeout(undoTimer);
+    undoStack = [];
+    $('undoBar').hidden = true;
+  }
+  function pushUndo(id) {
+    undoStack.push(id);
+    if (undoStack.length > 30) undoStack.shift();
+    showUndo();
+  }
+  $('undoBtn').addEventListener('click', () => {
+    const id = undoStack.pop();
+    if (id && state.cart[id] > 0) {
+      changeQty(id, -1);
+      bump($('cartBtn'));
+    }
+    vibrate([10, 30, 10]);
+    showUndo();
+  });
+
+  function openCart() {
+    hideUndo();
+    state.cartOpen = true;
+    $('cartPanel').hidden = false;
+    $('cartBackdrop').hidden = false;
+    $('cartBtn').setAttribute('aria-expanded', 'true');
+    lockScroll();
+  }
+  function closeCart() {
+    state.cartOpen = false;
+    $('cartPanel').hidden = true;
+    $('cartBackdrop').hidden = true;
+    $('cartBtn').setAttribute('aria-expanded', 'false');
+    lockScroll();
+  }
+  $('cartBtn').addEventListener('click', () => { vibrate(8); state.cartOpen ? closeCart() : openCart(); });
+  $('cartBackdrop').addEventListener('click', closeCart);
+  $('cartPanel').addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.inc) { changeQty(t.dataset.inc, 1); vibrate(8); }
+    else if (t.dataset.dec) { changeQty(t.dataset.dec, -1); vibrate(8); }
+    else if (t.dataset.del) { delete state.cart[t.dataset.del]; save(KEYS.cart, state.cart); renderCatalog(); renderCart(); vibrate(15); }
+    else if (t.dataset.action === 'clear-cart') {
+      state.cart = {}; save(KEYS.cart, state.cart); renderCatalog(); renderCart(); vibrate(20); hideUndo(); closeCart(); toast('Varukorgen är rensad');
+    }
+    else if (t.dataset.action === 'close-cart') closeCart();
+  });
+
+  $('gearBtn').addEventListener('click', openSettings);
+
+  /* ================= Betalning ================= */
+  let wakeLock = null;
+  async function requestWakeLock() {
+    try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) { wakeLock = null; }
+  }
+  function releaseWakeLock() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+
+  function openPay() {
+    const total = cartTotal();
+    if (total <= 0) return;
+    closeCart();
+    hideUndo();
+    const s = state.settings;
+    const msg = qrMessage(s.message || 'Kiosk');
+    const payload = 'C' + s.swish + ';' + total + ';' + msg + ';0';
+
+    $('payTitle').textContent = s.title || BRAND;
+    $('payAmount').textContent = kr(total);
+    $('payNumber').textContent = formatSwish(s.swish);
+    $('payMsg').textContent = msg ? 'Meddelande: ' + msg : '';
+    cashReceived = null;
+    $('cashInput').value = '';
+    setPayMethod('swish');
+
+    const qrEl = $('qr');
+    qrEl.innerHTML = '';
+    const size = Math.floor(Math.max(180, Math.min(window.innerWidth - 80, window.innerHeight * 0.38, 340)));
+    if (typeof QRCode === 'undefined') {
+      qrEl.innerHTML = '<div class="qr-error">QR-koden kunde inte skapas. Kunden kan swisha manuellt till numret nedan.</div>';
+    } else {
+      try {
+        new QRCode(qrEl, { text: payload, width: size, height: size, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+        qrEl.title = '';
+      } catch (err) {
+        qrEl.innerHTML = '<div class="qr-error">Kunde inte skapa QR-kod. Swisha manuellt till numret nedan.</div>';
+      }
+    }
+    $('payView').hidden = false;
+    lockScroll();
+    vibrate(20);
+    requestWakeLock();
+  }
+  function closePay() {
+    $('payView').hidden = true;
+    releaseWakeLock();
+    lockScroll();
+  }
+
+  /* ---- Betalsätt: Swish / Kontant ---- */
+  let payMethod = 'swish';
+  let cashReceived = null;   // null = inget angivet (jämnt)
+
+  function setPayMethod(method) {
+    payMethod = method;
+    ['swish', 'cash'].forEach((m) => {
+      const tab = $(m === 'swish' ? 'tabSwish' : 'tabCash');
+      tab.classList.toggle('active', m === method);
+      tab.setAttribute('aria-selected', m === method ? 'true' : 'false');
+    });
+    $('paySwish').hidden = method !== 'swish';
+    $('payCash').hidden = method !== 'cash';
+    if (method === 'cash') renderCash();
+    else updateDoneBtn();
+  }
+
+  function cashSuggestions(total) {
+    const set = [total];
+    [10, 20, 50, 100, 200, 500, 1000].forEach((step) => {
+      const v = Math.ceil(total / step) * step;
+      if (v > total) set.push(v);
+    });
+    return Array.from(new Set(set)).sort((a, b) => a - b).slice(0, 6);
+  }
+
+  function renderCash() {
+    const total = cartTotal();
+    $('cashQuick').innerHTML = cashSuggestions(total).map((v) =>
+      '<button type="button" data-cash="' + v + '"' + (cashReceived === v ? ' class="selected"' : '') + '>' +
+      (v === total ? 'Jämnt' : kr(v)) + '</button>'
+    ).join('');
+    const box = $('cashChange');
+    box.classList.remove('ok', 'short');
+    if (cashReceived === null) {
+      box.innerHTML = '<span class="pay-label">Växel tillbaka</span><div class="amount">–</div>';
+    } else if (cashReceived >= total) {
+      box.classList.add('ok');
+      box.innerHTML = '<span class="pay-label">Växel tillbaka</span><div class="amount">' + kr(cashReceived - total) + '</div>';
+    } else {
+      box.classList.add('short');
+      box.innerHTML = '<span class="pay-label">Saknas</span><div class="amount">' + kr(total - cashReceived) + '</div>';
+    }
+    updateDoneBtn();
+  }
+
+  function updateDoneBtn() {
+    const btn = $('doneBtn');
+    if (payMethod === 'cash') {
+      const short = cashReceived !== null && cashReceived < cartTotal();
+      btn.disabled = short;
+      btn.textContent = short ? 'Beloppet räcker inte' : 'Klar (kontant) / Ny kund';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Klar / Ny kund';
+    }
+  }
+
+  $('tabSwish').addEventListener('click', () => { setPayMethod('swish'); vibrate(8); });
+  $('tabCash').addEventListener('click', () => { setPayMethod('cash'); vibrate(8); });
+  $('cashQuick').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cash]');
+    if (!b) return;
+    cashReceived = Number(b.dataset.cash);
+    $('cashInput').value = '';
+    vibrate(10);
+    renderCash();
+  });
+  $('cashInput').addEventListener('input', () => {
+    const v = $('cashInput').value.trim();
+    const n = Number(v.replace(',', '.'));
+    cashReceived = v === '' || !isFinite(n) || n < 0 ? null : Math.round(n);
+    renderCash();
+  });
+
+  function completePayment() {
+    if ($('doneBtn').disabled) return;
+    const lines = cartLines();
+    if (lines.length) {
+      const total = cartTotal();
+      const order = {
+        id: uid(),
+        ts: Date.now(),
+        items: lines.map((l) => ({ name: l.name, price: l.price, qty: l.qty })),
+        total: total,
+        method: payMethod
+      };
+      if (payMethod === 'cash' && cashReceived !== null) order.received = cashReceived;
+      state.orders.push(order);
+      save(KEYS.orders, state.orders);
+    }
+    state.cart = {};
+    save(KEYS.cart, state.cart);
+    hideUndo();
+    closePay();
+    renderPOS();
+    vibrate([15, 40, 15]);
+    toast('✓ Köpet är sparat (' + (payMethod === 'cash' ? 'kontant' : 'Swish') + ') – redo för nästa kund');
+  }
+  $('payBtn').addEventListener('click', openPay);
+  $('doneBtn').addEventListener('click', completePayment);
+  $('cancelBtn').addEventListener('click', () => { closePay(); vibrate(10); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !$('payView').hidden) requestWakeLock();
+  });
+
+  /* ================= Inställningar ================= */
+  function isConfigured() { return !swishError(state.settings.swish) && state.menu.length > 0; }
+
+  function openSettings() {
+    closeCart();
+    const s = state.settings;
+    const firstRun = !s.swish;
+    $('welcome').hidden = !firstRun;
+    $('settingsHeading').textContent = firstRun ? 'Kom igång' : 'Inställningar';
+    $('settingsClose').hidden = !isConfigured();
+    $('swishInput').value = s.swish ? formatSwish(s.swish) : '';
+    $('titleInput').value = s.title || '';
+    $('messageInput').value = s.message || '';
+    $('swishError').hidden = true;
+    $('swishInput').classList.remove('invalid');
+    $('formError').hidden = true;
+    $('addError').hidden = true;
+    state.editingId = null;
+    renderMenuList();
+    renderStats();
+    $('settingsView').hidden = false;
+    $('settingsView').scrollTop = 0;
+    lockScroll();
+  }
+  function closeSettings() {
+    $('settingsView').hidden = true;
+    state.editingId = null;
+    lockScroll();
+    renderPOS();
+  }
+  $('settingsClose').addEventListener('click', closeSettings);
+
+  $('swishInput').addEventListener('blur', () => {
+    const n = normalizeSwish($('swishInput').value);
+    if (!$('swishInput').value.trim()) return;
+    const err = swishError(n);
+    $('swishError').textContent = err;
+    $('swishError').hidden = !err;
+    $('swishInput').classList.toggle('invalid', !!err);
+    if (!err) $('swishInput').value = formatSwish(n);
+  });
+  $('swishInput').addEventListener('input', () => {
+    if ($('swishInput').classList.contains('invalid') && !swishError(normalizeSwish($('swishInput').value))) {
+      $('swishInput').classList.remove('invalid');
+      $('swishError').hidden = true;
+    }
+  });
+
+  /* ---- Menyhantering ---- */
+  const icons = {
+    up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+    ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+  };
+
+  function renderMenuList() {
+    const list = $('menuList');
+    if (!state.menu.length) {
+      list.innerHTML = '<li class="menu-empty">Inga varor ännu. Lägg till nedan eller ladda standardmenyn.</li>';
+      return;
+    }
+    const last = state.menu.length - 1;
+    list.innerHTML = state.menu.map((m, i) => {
+      const id = esc(m.id);
+      if (state.editingId === m.id) {
+        return '<li class="menu-row editing" data-id="' + id + '">' +
+          '<input class="e-name" type="text" maxlength="30" value="' + esc(m.name) + '" aria-label="Namn">' +
+          '<input class="e-price" type="number" inputmode="numeric" min="1" step="1" value="' + m.price + '" aria-label="Pris">' +
+          '<button class="mini ok" data-m="save" aria-label="Spara">' + icons.ok + '</button>' +
+          '<button class="mini" data-m="cancel" aria-label="Avbryt">' + icons.x + '</button>' +
+          '</li>';
+      }
+      return '<li class="menu-row" data-id="' + id + '">' +
+        '<span class="m-name">' + esc(m.name) + '</span>' +
+        '<span class="m-price">' + kr(m.price) + '</span>' +
+        '<button class="mini" data-m="up" aria-label="Flytta upp"' + (i === 0 ? ' disabled' : '') + '>' + icons.up + '</button>' +
+        '<button class="mini" data-m="down" aria-label="Flytta ner"' + (i === last ? ' disabled' : '') + '>' + icons.down + '</button>' +
+        '<button class="mini" data-m="edit" aria-label="Redigera">' + icons.edit + '</button>' +
+        '<button class="mini del" data-m="del" aria-label="Ta bort">' + icons.del + '</button>' +
+        '</li>';
+    }).join('');
+
+    if (state.editingId) {
+      const inp = list.querySelector('.editing .e-name');
+      if (inp) { inp.focus(); inp.select(); }
+    }
+  }
+
+  function persistMenu() {
+    save(KEYS.menu, state.menu);
+    reconcileCart();
+    renderMenuList();
+    $('settingsClose').hidden = !isConfigured();
+  }
+
+  function saveEdit(row) {
+    const id = row.dataset.id;
+    const item = itemById(id);
+    if (!item) return;
+    const name = row.querySelector('.e-name').value.trim();
+    const price = parsePrice(row.querySelector('.e-price').value);
+    if (!name) { toast('Namnet får inte vara tomt'); return; }
+    if (price === null) { toast('Ange ett giltigt pris (heltal i kronor)'); return; }
+    item.name = name;
+    item.price = price;
+    state.editingId = null;
+    persistMenu();
+  }
+
+  $('menuList').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-m]');
+    if (!btn) return;
+    const row = btn.closest('.menu-row');
+    const id = row.dataset.id;
+    const i = state.menu.findIndex((m) => m.id === id);
+    if (i < 0) return;
+    switch (btn.dataset.m) {
+      case 'up':
+        if (i > 0) { [state.menu[i - 1], state.menu[i]] = [state.menu[i], state.menu[i - 1]]; persistMenu(); }
+        break;
+      case 'down':
+        if (i < state.menu.length - 1) { [state.menu[i + 1], state.menu[i]] = [state.menu[i], state.menu[i + 1]]; persistMenu(); }
+        break;
+      case 'edit':
+        state.editingId = id; renderMenuList();
+        break;
+      case 'cancel':
+        state.editingId = null; renderMenuList();
+        break;
+      case 'save':
+        saveEdit(row);
+        break;
+      case 'del':
+        if (confirm('Ta bort "' + state.menu[i].name + '" från menyn?')) {
+          state.menu.splice(i, 1);
+          if (state.editingId === id) state.editingId = null;
+          persistMenu();
+        }
+        break;
+    }
+  });
+  $('menuList').addEventListener('keydown', (e) => {
+    const row = e.target.closest('.menu-row.editing');
+    if (!row) return;
+    if (e.key === 'Enter') { e.preventDefault(); saveEdit(row); }
+    if (e.key === 'Escape') { e.preventDefault(); state.editingId = null; renderMenuList(); }
+  });
+
+  $('addForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nameEl = $('addName'), priceEl = $('addPrice'), err = $('addError');
+    const name = nameEl.value.trim();
+    const price = parsePrice(priceEl.value);
+    if (!name) { err.textContent = 'Ange ett namn på varan.'; err.hidden = false; nameEl.focus(); return; }
+    if (price === null) { err.textContent = 'Ange ett giltigt pris (heltal i kronor).'; err.hidden = false; priceEl.focus(); return; }
+    err.hidden = true;
+    state.menu.push({ id: uid(), name: name, price: price });
+    persistMenu();
+    nameEl.value = '';
+    priceEl.value = '';
+    nameEl.focus();
+    $('formError').hidden = true;
+  });
+
+  /* ---- Försäljningsöversikt ---- */
+  function fmtDateTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString('sv-SE') + ' ' + d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderStats() {
+    const body = $('statsBody');
+    const orders = state.orders;
+    if (!orders.length) {
+      body.innerHTML = '<p class="menu-empty" style="padding:0">Inga köp registrerade ännu. Varje köp sparas när du trycker "Klar / Ny kund".</p>';
+      return;
+    }
+    const total = orders.reduce((a, o) => a + o.total, 0);
+    const cashOrders = orders.filter((o) => o.method === 'cash');
+    const cashTotal = cashOrders.reduce((a, o) => a + o.total, 0);
+    const swishTotal = total - cashTotal;
+    const perItem = {};
+    orders.forEach((o) => o.items.forEach((it) => {
+      const p = perItem[it.name] || (perItem[it.name] = { name: it.name, qty: 0, sum: 0 });
+      p.qty += it.qty;
+      p.sum += it.qty * it.price;
+    }));
+    const rows = Object.values(perItem).sort((a, b) => b.sum - a.sum);
+    const recent = orders.slice(-10).reverse();
+
+    body.innerHTML =
+      '<div class="stats-grid">' +
+        '<div class="stat"><div class="label">Antal köp</div><div class="value">' + orders.length.toLocaleString('sv-SE') + '</div></div>' +
+        '<div class="stat"><div class="label">Total försäljning</div><div class="value">' + kr(total) + '</div></div>' +
+        '<div class="stat"><div class="label">Swish (' + (orders.length - cashOrders.length) + ' köp)</div><div class="value">' + kr(swishTotal) + '</div></div>' +
+        '<div class="stat"><div class="label">Kontant (' + cashOrders.length + ' köp)</div><div class="value">' + kr(cashTotal) + '</div></div>' +
+      '</div>' +
+      '<p class="hint" style="margin:-4px 0 10px;color:var(--muted);font-size:.88rem">Sedan ' + esc(fmtDateTime(orders[0].ts)) + '</p>' +
+      '<table class="sales"><thead><tr><th>Vara</th><th class="num">Antal</th><th class="num">Summa</th></tr></thead><tbody>' +
+        rows.map((r) => '<tr><td>' + esc(r.name) + '</td><td class="num">' + r.qty + '</td><td class="num">' + kr(r.sum) + '</td></tr>').join('') +
+      '</tbody></table>' +
+      '<div class="subhead">Senaste köp</div>' +
+      '<ul class="orders-list">' +
+        recent.map((o) =>
+          '<li><div class="o-info"><div class="o-time">' + esc(fmtDateTime(o.ts)) + ' · ' + (o.method === 'cash' ? 'Kontant' : 'Swish') + '</div>' +
+          '<div class="o-items">' + esc(o.items.map((it) => it.qty + '× ' + it.name).join(', ')) + '</div></div>' +
+          '<span class="o-sum">' + kr(o.total) + '</span>' +
+          '<button class="mini del" style="width:42px;height:42px;border-radius:10px;background:#fde8e8;color:var(--red);display:inline-flex;align-items:center;justify-content:center" data-order-del="' + esc(o.id) + '" aria-label="Ta bort köp">' + icons.del + '</button></li>'
+        ).join('') +
+      '</ul>' +
+      '<div class="row-actions">' +
+        '<button type="button" class="btn" data-action="export-csv">Exportera CSV</button>' +
+        '<button type="button" class="btn btn-danger" data-action="clear-history">Rensa historik</button>' +
+      '</div>';
+    body.querySelectorAll('.mini.del svg').forEach((s) => { s.style.width = '20px'; s.style.height = '20px'; });
+  }
+
+  function exportCSV() {
+    const rows = [['Datum', 'Tid', 'Order-ID', 'Betalsätt', 'Vara', 'Antal', 'Styckpris', 'Summa']];
+    state.orders.forEach((o) => {
+      const d = new Date(o.ts);
+      const date = d.toLocaleDateString('sv-SE');
+      const time = d.toLocaleTimeString('sv-SE');
+      const method = o.method === 'cash' ? 'Kontant' : 'Swish';
+      o.items.forEach((it) => rows.push([date, time, o.id, method, it.name, it.qty, it.price, it.qty * it.price]));
+    });
+    const csv = '\ufeff' + rows.map((r) => r.map((c) => {
+      const s = String(c);
+      return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(';')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'klubbkassan-forsaljning-' + new Date().toLocaleDateString('sv-SE') + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  $('statsCard').addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.orderDel) {
+      if (confirm('Ta bort detta köp från historiken?')) {
+        state.orders = state.orders.filter((o) => o.id !== t.dataset.orderDel);
+        save(KEYS.orders, state.orders);
+        renderStats();
+      }
+    } else if (t.dataset.action === 'export-csv') {
+      exportCSV();
+    } else if (t.dataset.action === 'clear-history') {
+      if (confirm('Rensa hela försäljningshistoriken? Detta går inte att ångra.\n\nTips: exportera CSV först.')) {
+        state.orders = [];
+        save(KEYS.orders, state.orders);
+        renderStats();
+        toast('Historiken är rensad');
+      }
+    }
+  });
+
+  /* ---- Standardmeny & spara ---- */
+  $('settingsView').addEventListener('click', (e) => {
+    const t = e.target.closest('[data-action="default-menu"]');
+    if (!t) return;
+    if (state.menu.length && !confirm('Ersätt nuvarande meny med standardmenyn?')) return;
+    state.menu = DEFAULT_MENU.map((m) => ({ id: uid(), name: m.name, price: m.price }));
+    state.editingId = null;
+    persistMenu();
+    $('formError').hidden = true;
+    toast('Standardmenyn är laddad');
+  });
+
+  $('saveBtn').addEventListener('click', () => {
+    const num = normalizeSwish($('swishInput').value);
+    const err = swishError(num);
+    const formErr = $('formError');
+    if (err) {
+      $('swishError').textContent = err;
+      $('swishError').hidden = false;
+      $('swishInput').classList.add('invalid');
+      formErr.textContent = 'Kontrollera Swish-numret.';
+      formErr.hidden = false;
+      $('settingsView').scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (state.editingId) {
+      const row = $('menuList').querySelector('.menu-row.editing');
+      if (row) saveEdit(row);
+      if (state.editingId) return;
+    }
+    if (!state.menu.length) {
+      formErr.textContent = 'Lägg till minst en vara i menyn.';
+      formErr.hidden = false;
+      return;
+    }
+    state.settings = {
+      swish: num,
+      title: $('titleInput').value.trim() || BRAND,
+      message: $('messageInput').value.trim() || 'Kiosk'
+    };
+    save(KEYS.settings, state.settings);
+    closeSettings();
+    toast('Inställningarna är sparade');
+  });
+
+  /* ================= Tangentbord ================= */
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!$('payView').hidden) closePay();
+    else if (state.cartOpen) closeCart();
+    else if (!$('settingsView').hidden && isConfigured() && !state.editingId) closeSettings();
+  });
+
+  /* ================= PWA / offline ================= */
+  const isHttp = location.protocol === 'https:' || location.protocol === 'http:';
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let installPrompt = null;
+
+  if (isHttp) {
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'manifest.webmanifest';
+    document.head.appendChild(link);
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(renderAppStatus).catch(() => {});
+      });
+    }
+  }
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installPrompt = e;
+    renderAppStatus();
+  });
+  window.addEventListener('appinstalled', () => { installPrompt = null; renderAppStatus(); toast('Klubbkassan är installerad'); });
+  $('installBtn').addEventListener('click', async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    try { await installPrompt.userChoice; } catch (e) {}
+    installPrompt = null;
+    renderAppStatus();
+  });
+
+  function renderAppStatus() {
+    let text = 'QR-koden skapas direkt i appen – ingen internetanslutning behövs för att ta betalt. ';
+    if (isStandalone) text += 'Appen körs installerad.';
+    else if (!isHttp) text += 'Filen är öppnad lokalt och fungerar helt utan nät. Lägg upp den på en webbplats (t.ex. GitHub Pages) för att kunna installera den på hemskärmen.';
+    else if (installPrompt) text += 'Installera appen för snabbare start och helskärm.';
+    else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) text += 'På iPhone: tryck på Dela-knappen och välj "Lägg till på hemskärmen".';
+    else text += 'Använd webbläsarens meny för att installera eller lägga till på hemskärmen.';
+    $('appStatus').textContent = text;
+    $('installBtn').hidden = !installPrompt || isStandalone;
+  }
+
+  /* ================= Start ================= */
+  if (state.settings.title === 'Kiosken') { state.settings.title = BRAND; save(KEYS.settings, state.settings); }
+  renderAppStatus();
+  reconcileCart();
+  renderPOS();
+  if (!isConfigured()) openSettings();
+})();
+</script>
+</body>
+</html>

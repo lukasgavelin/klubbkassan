@@ -1,0 +1,16 @@
+{
+  "name": "Klubbkassan",
+  "short_name": "Klubbkassan",
+  "description": "Kassan för föreningens kiosk, café och evenemang – betala med Swish eller kontant.",
+  "lang": "sv",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f3f5",
+  "theme_color": "#111214",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
