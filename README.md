@@ -2,6 +2,8 @@
 
 **Kassan för föreningens kiosk, café och evenemang – betala med Swish eller kontant.**
 
+👉 **Öppna appen: [lukasgavelin.github.io/klubbkassan](https://lukasgavelin.github.io/klubbkassan/)**
+
 Klubbkassan är en mobilanpassad kassa-webbapp på svenska för idrottsföreningar, skolklasser, loppisar och andra evenemang. Den består av en enda HTML-fil, kräver ingen server, inget konto och ingen internetanslutning – och den sparar allt lokalt i webbläsaren.
 
 ---
@@ -20,14 +22,17 @@ Klubbkassan är en mobilanpassad kassa-webbapp på svenska för idrottsförening
 
 ## Kom igång
 
-### Snabbast: öppna filen
-1. Ladda ner `index.html`.
-2. Öppna den i webbläsaren på mobilen, surfplattan eller datorn.
-3. Följ välkomstguiden: fyll i Swish-nummer, namn på kassan och lägg upp varor.
-4. Tryck **Spara och gå till kassan** – klart!
+### Snabbast: öppna webbappen
+1. Gå till **https://lukasgavelin.github.io/klubbkassan/** i mobilen.
+2. Följ välkomstguiden: fyll i Swish-nummer, namn på kassan och lägg upp varor.
+3. Tryck **Spara och gå till kassan** – klart!
+4. Valfritt: välj *Installera* (Android/Chrome) eller *Dela → Lägg till på hemskärmen* (iPhone/Safari) så fungerar appen som en vanlig app, även offline.
 
-### Rekommenderat: publicera på webben (för installation på hemskärmen)
-Lägg upp alla filer i projektet (`index.html`, `manifest.webmanifest`, `sw.js`, `icon.svg`) på valfri statisk webbhotell, t.ex. **GitHub Pages**, **Netlify** eller **Cloudflare Pages**. Öppna adressen i mobilen och välj *Installera* (Android/Chrome) eller *Dela → Lägg till på hemskärmen* (iPhone/Safari).
+### Utan internet: öppna filen
+Ladda ner `index.html` och öppna den direkt i webbläsaren. Allt fungerar, utom installation på hemskärmen.
+
+### Egen publicering
+Lägg upp alla filer i projektet (`index.html`, `manifest.webmanifest`, `sw.js`, `icon.svg`) på valfri statisk webbhotell, t.ex. **GitHub Pages**, **Netlify** eller **Cloudflare Pages**.
 
 > Appen måste serveras via `https://` för att kunna installeras och cachas av service workern. Som lokal fil fungerar allt utom installationen.
 
@@ -64,6 +69,7 @@ Lägg upp alla filer i projektet (`index.html`, `manifest.webmanifest`, `sw.js`,
 | `manifest.webmanifest` | PWA-manifest (namn, färger, ikon) – används vid publicering. |
 | `sw.js` | Service worker för offline-cache – används vid publicering. |
 | `icon.svg` | Appikon / logga. |
+| `.nojekyll` | Gör att GitHub Pages publicerar filerna som de är. |
 | `docs/TEKNISK-DOKUMENTATION.md` | Teknisk dokumentation: arkitektur, datamodell, Swish-format m.m. |
 
 ## Webbläsarstöd

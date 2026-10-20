@@ -26,6 +26,7 @@ Dokumentet beskriver arkitektur, datamodell, flöden och implementationsdetaljer
 ├── manifest.webmanifest    PWA-manifest (laddas endast via http/https)
 ├── sw.js                   Service worker – offline-cache (endast http/https)
 ├── icon.svg                Appikon/logga
+├── .nojekyll               Stänger av Jekyll på GitHub Pages
 ├── README.md               Användardokumentation
 └── docs/
     └── TEKNISK-DOKUMENTATION.md
@@ -346,6 +347,10 @@ Datum;Tid;Order-ID;Betalsätt;Vara;Antal;Styckpris;Summa
 ---
 
 ## 11. Driftsättning
+
+**Produktion:** GitHub Pages från grenen `main` (rot), https://lukasgavelin.github.io/klubbkassan/. Filen `.nojekyll` gör att filerna publiceras som de är, utan Jekyll-bearbetning. Varje push till `main` publiceras automatiskt inom någon minut.
+
+Egen driftsättning:
 
 1. Ladda upp alla filer till samma katalog på en statisk webbserver med HTTPS (GitHub Pages, Netlify, Cloudflare Pages m.fl.).
 2. Inga serverinställningar krävs. `manifest.webmanifest` bör helst serveras som `application/manifest+json` (de flesta värdar gör det automatiskt).
