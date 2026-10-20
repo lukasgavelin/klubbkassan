@@ -225,6 +225,15 @@ QR genereras med felkorrigering **M**, svart på vitt, storlek `max(180, min(inn
 
 > **Obs:** Appen kan inte verifiera att betalningen har genomförts. Det kräver Swish Handel (API med certifikat) och en backend, vilket ligger utanför projektets ramar.
 
+### 5.3 Dela och klona meny via QR-kod
+För att snabbt sätta upp flera mobiler i samma kiosk utan konto, databas eller server:
+1. Säljare 1 trycker på **Dela meny till annan mobil** under Meny i Inställningar.
+2. Appen serialiserar `state.settings` och `state.menu` till en kompakt URL-safe Base64-sträng i URL-fragmentet (`#setup=<data>`).
+3. En QR-kod genereras med felkorrigering **L** så att mobilkameror enkelt kan skanna den.
+4. Säljare 2 skannar koden med sin vanliga mobilkamera och öppnar länken.
+5. Klubbkassan känner av hashen, visar en bekräftelsedialog med förhandsgranskning av kassan, och läser in meny och Swish-nummer med ett tryck.
+6. URL-fragmentet rensas därefter med `history.replaceState()`. All data stannar 100 % lokalt i webbläsaren.
+
 ---
 
 ## 6. Offline & PWA
@@ -239,7 +248,7 @@ Vid start (endast om `location.protocol` är `http:`/`https:`):
 3. `beforeinstallprompt` fångas → knappen **Installera på hemskärmen** visas i Inställningar.
 
 **`sw.js`**
-- Cache-namn: `klubbkassan-v4`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
+- Cache-namn: `klubbkassan-v5`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
 - Förcachar: `./`, `./index.html`, `./manifest.webmanifest`, `./icon.svg`, `./apple-touch-icon.png`, `./icon-192.png`, `./icon-512.png`.
 - Strategi: *stale-while-revalidate* för GET-anrop till samma origin. Navigeringar faller tillbaka till `index.html`.
 - `skipWaiting()` + `clients.claim()` → ny version aktiveras direkt; användaren ser den vid nästa omladdning.
@@ -335,7 +344,7 @@ Datum;Tid;Order-ID;Betalsätt;Vara;Antal;Styckpris;Summa
 | `DEFAULT_MENU` | Lagring | Kaffe 15, Festis 10, Kaka 10, Toast 25, Korv med bröd 20 |
 | `UNDO_MS` | Ångra | `4000` |
 | Standardmeddelande | `state.settings`, spara | `'Kiosk'` |
-| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v4'` |
+| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v5'` |
 
 ---
 

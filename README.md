@@ -16,6 +16,7 @@ Klubbkassan är en mobilanpassad kassa-webbapp på svenska för idrottsförening
 - 💵 **Kontant** – snabbknappar för vanliga sedlar och automatisk växelräkning.
 - 📊 **Försäljningsöversikt** – antal köp, total, uppdelat på Swish/kontant och per vara. Export till CSV (öppnas direkt i Excel).
 - 🧾 **Menyhantering** – lägg till, redigera, ta bort och sortera varor. Färdig standardmeny med ett tryck.
+- 📲 **Klona kassa till annan mobil** – dela meny, priser och Swish-nummer direkt via QR-kod eller länk, helt utan servrar eller konton.
 - 📴 **Fungerar offline** – allt, inklusive QR-generering, är inbäddat i filen.
 - 📲 **Installerbar (PWA)** – kan läggas till på hemskärmen när den publiceras på en webbplats.
 - ☀️ **Byggd för utomhusbruk** – högkontrast, stora tryckytor, skärmen hålls tänd under betalning.
