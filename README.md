@@ -48,13 +48,15 @@ Lägg upp alla filer i projektet (`index.html`, `manifest.webmanifest`, `sw.js`,
 | Swish | Kunden skannar QR-koden. När betalningen syns i kundens app: **Klar / Ny kund**. |
 | Kontant | Välj fliken **Kontant**, tryck på beloppet kunden ger → växeln visas. **Klar (kontant) / Ny kund**. |
 | Ångrar sig kunden | **Avbryt** – korgen finns kvar. |
+| Klona till annan mobil | Kugghjulet → **Dela meny till annan mobil** → skanna QR med den andra mobilen. |
 | Inställningar & statistik | Kugghjulet uppe till höger. |
 
-### Swish-nummer
-- **Föreningar/företag:** 123-nummer med 10 siffror, t.ex. `123 456 78 90`.
+### Swish-nummer & säkerhet
+- **Föreningar/företag:** 123-nummer med 10 siffror, t.ex. `123 456 78 90`. Även `+46 123...` accepteras.
 - **Privatpersoner:** mobilnummer som börjar på 07, t.ex. `070-123 45 67`. Även `+46 70…` accepteras.
+- **Kontrollkod:** Vid varje Swish-betalning genereras en unik 3-teckens kontrollkod (t.ex. `#B27`) som även ingår i betalningsmeddelandet. Kontrollera att samma kod syns på kundens genomförda betalningsskärm för att skydda mot bluff-appar och gamla skärmdumpar.
 
-> **Viktigt:** Klubbkassan skapar bara QR-koden – den ser inte om betalningen har gått igenom. Kontrollera alltid att kunden visar en genomförd betalning innan du trycker **Klar**.
+> **Viktigt:** Klubbkassan skapar bara QR-koden – den ser inte om betalningen har gått igenom. Kontrollera alltid att kunden visar en genomförd betalning med rätt kontrollkod innan du trycker **Klar**.
 
 ## Data & integritet
 
@@ -69,7 +71,9 @@ Lägg upp alla filer i projektet (`index.html`, `manifest.webmanifest`, `sw.js`,
 | `index.html` | Hela appen: HTML, CSS, JavaScript och inbäddat QR-bibliotek. Fungerar ensam. |
 | `manifest.webmanifest` | PWA-manifest (namn, färger, ikon) – används vid publicering. |
 | `sw.js` | Service worker för offline-cache – används vid publicering. |
-| `icon.svg` | Appikon / logga. |
+| `icon.svg` | Appikon / logga (vektorgrafik). |
+| `apple-touch-icon.png` | Appikon för hemskärm på iPhone/iPad (180×180). |
+| `icon-192.png`, `icon-512.png` | PWA-ikoner för installation på Android och desktop. |
 | `.nojekyll` | Gör att GitHub Pages publicerar filerna som de är. |
 | `docs/TEKNISK-DOKUMENTATION.md` | Teknisk dokumentation: arkitektur, datamodell, Swish-format m.m. |
 
@@ -79,10 +83,10 @@ Moderna versioner av Chrome, Edge, Safari (iOS 15+), Firefox och Samsung Interne
 
 ## Kända begränsningar
 
-- Priser hanteras i hela kronor.
+- Priser hanteras i hela kronor (0–100 000 kr; 0 kr tillåtet för gratisartiklar/domarfika).
 - Å, ä och ö i betalningsmeddelandet skrivs som a/o i QR-koden (av kompatibilitetsskäl).
-- Ingen synkning mellan enheter – varje telefon har sin egen historik.
-- Betalningsstatus verifieras inte automatiskt (kräver Swish Handel/API med certifikat och backend).
+- Ingen automatisk historiksynk mellan enheter – menyn kan enkelt klonas via QR-kod, men varje telefon har sin egen köphistorik.
+- Betalningsstatus verifieras inte automatiskt (kräver Swish Handel/API med certifikat och backend). Kontrollkod (#XXX) används som skydd mot bluff-Swish.
 
 ## Licens & tredjepart
 

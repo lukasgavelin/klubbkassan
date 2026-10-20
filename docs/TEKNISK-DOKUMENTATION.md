@@ -25,7 +25,10 @@ Dokumentet beskriver arkitektur, datamodell, flöden och implementationsdetaljer
 ├── index.html              Hela appen (markup, CSS, JS, qrcodejs)
 ├── manifest.webmanifest    PWA-manifest (laddas endast via http/https)
 ├── sw.js                   Service worker – offline-cache (endast http/https)
-├── icon.svg                Appikon/logga
+├── icon.svg                Appikon/logga (SVG)
+├── apple-touch-icon.png    Appikon för hemskärm på iPhone/iPad (180×180)
+├── icon-192.png            PWA-ikon (192×192)
+├── icon-512.png            PWA-ikon (512×512)
 ├── .nojekyll               Stänger av Jekyll på GitHub Pages
 ├── README.md               Användardokumentation
 └── docs/
@@ -74,8 +77,10 @@ Händelser hanteras med **event delegation** på containerelement (`#catalog`, `
 | Ångra-rad | `#undoBar` | I 4 s efter att en vara lagts till |
 | Inställningar / wizard | `#settingsView` | Kugghjulet, eller automatiskt om appen inte är konfigurerad |
 | Betalning | `#payView` | "Ta betalt" |
+| Dela meny (modal) | `#shareDialog` + `#shareBackdrop` | "Dela meny till annan mobil" under Inställningar |
+| Läs in kassa (modal) | `#importDialog` + `#importBackdrop` | Vid öppning av länk/QR med `#setup=` i URL:en |
 
-Vyer växlas med attributet `hidden` (CSS: `[hidden] { display: none !important; }`). `lockScroll()` sätter `body.locked` när en överliggande vy är öppen.
+Vyer växlas med attributet `hidden` (CSS: `[hidden] { display: none !important; }`). `lockScroll()` sätter `body.locked` när en överliggande vy eller modal är öppen.
 
 ---
 
@@ -100,11 +105,12 @@ interface Settings {
 interface MenuItem {
   id: string;        // uid(): base36-tid + slump
   name: string;      // max 30 tecken
-  price: number;     // heltal kronor, 1–100 000
+  price: number;     // heltal kronor, 0–100 000 (0 kr för gratisartiklar/domarfika)
 }
 
 interface Order {
   id: string;
+  ref?: string;                      // unik 3-teckens kontrollkod för Swish (t.ex. "B27")
   ts: number;                        // Date.now()
   items: { name: string; price: number; qty: number }[];  // ögonblicksbild
   total: number;                     // kronor
@@ -272,8 +278,8 @@ Beräknas vid varje öppning av Inställningar från `state.orders`:
 - En rad per orderrad:
 
 ```
-Datum;Tid;Order-ID;Betalsätt;Vara;Antal;Styckpris;Summa
-2026-10-20;16:12:01;mvgs13gemruj0;Kontant;Kaffe;2;15;30
+Datum;Tid;Order-ID;Betalsätt;Kontrollkod;Vara;Antal;Styckpris;Summa
+2026-10-20;16:12:01;mvgs13gemruj0;Swish;B27;Kaffe;2;15;30
 ```
 
 - Fält som innehåller `;`, `"` eller radbrytning citeras.
@@ -332,6 +338,7 @@ Datum;Tid;Order-ID;Betalsätt;Vara;Antal;Styckpris;Summa
 | `Menyhantering` | `renderMenuList`, `persistMenu`, `saveEdit`, flytta/redigera/ta bort, lägg till |
 | `Försäljningsöversikt` | `renderStats`, `exportCSV`, rensa/ta bort köp |
 | `Standardmeny & spara` | Ladda standardmeny, spara-knappen |
+| `Dela & klona meny` | `encodeSetup`, `decodeSetup`, `openShareDialog`, `checkHashSetup`, dialoger |
 | `Tangentbord` | Escape-hantering |
 | `PWA / offline` | Manifest-injektion, SW-registrering, installationsknapp, `renderAppStatus` |
 | `Start` | Titelmigrering, första rendering, ev. wizard |
@@ -384,11 +391,13 @@ Det finns ingen automatiserad testsvit. Rekommenderad manuell checklista:
 - [ ] Varuklick → badge, korgsumma, ångra-rad; Ångra minskar rätt vara.
 - [ ] Korg: + / − / ta bort rad / rensa.
 - [ ] Ta betalt inaktiv vid tom korg.
-- [ ] QR skannas i Swish-appen med rätt mottagare, belopp och meddelande.
+- [ ] QR skannas i Swish-appen med rätt mottagare, belopp och meddelande inkl. kontrollkod (`#XXX`).
 - [ ] Kontant: snabbval och eget belopp ger rätt växel; för lite → Klar inaktiv.
+- [ ] Gratisvara (0 kr) kan läggas till, checkas ut och sparas.
+- [ ] Dela meny via QR-kod öppnar förhandsgranskning och klonar inställningar på mottagande mobil.
 - [ ] Klar → köp i statistik med rätt betalsätt; korgen tom.
 - [ ] Omladdning behåller inställningar, meny, korg och historik.
-- [ ] CSV öppnas korrekt i Excel (å/ä/ö, kolumner).
+- [ ] CSV öppnas korrekt i Excel (å/ä/ö, kolumner inkl. Kontrollkod).
 - [ ] Publicerad version: installerbar, fungerar i flygplansläge.
 
 ---
@@ -396,13 +405,13 @@ Det finns ingen automatiserad testsvit. Rekommenderad manuell checklista:
 ## 13. Kända begränsningar & idéer
 
 **Begränsningar**
-- Endast hela kronor.
-- Ingen verifiering av Swish-betalning.
-- Ingen synk mellan enheter; data per webbläsare.
+- Endast hela kronor (0–100 000 kr).
+- Ingen automatisk verifiering av Swish-betalning (kontrollkod används för manuell visuell avstämning).
+- Ingen automatisk historiksynk mellan enheter – varje telefon har sin egen köphistorik (men menyn kan klonas fritt via QR).
 - Statistik per vara grupperas på namn (byter en vara namn räknas den som ny).
 
 **Möjliga vidareutvecklingar**
 - Kategorier/färger på varor, lagersaldo, paketpriser.
-- Kassaskift med rapport per pass.
-- Dela meny/inställningar mellan enheter via QR/länk.
+- Kassaskift med rapport per pass och dagsavslut.
+- Sammanfogning av CSV-rapporter från flera telefoner till ett gemensamt dagsavslut.
 - PIN-lås för inställningar, mörkt läge, backup/återställning av all data.
