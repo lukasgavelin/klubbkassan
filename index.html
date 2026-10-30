@@ -465,6 +465,64 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .dialog-warn {
     color: var(--muted); font-size: .85rem; margin: 8px 0 14px; text-align: center;
   }
+
+  /* ---------- Kassapass & banner ---------- */
+  .shift-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 14px;
+    background: #e4e6ea; border-bottom: 1px solid var(--line);
+    font-size: .88rem; font-weight: 700;
+  }
+  .shift-banner.active { background: #e3f6ea; color: var(--green-dark); }
+  .shift-banner .btn-xs {
+    min-height: 32px; padding: 0 10px; font-size: .82rem; border-radius: 8px;
+  }
+  .tile-custom {
+    background: #1c1e22; border: 2px dashed #4b515d;
+  }
+  .tile-custom .tile-price { color: var(--amber); }
+
+  /* ---------- Rapport & differens ---------- */
+  .diff-box {
+    margin: 10px 0; padding: 12px 14px; border-radius: 12px;
+    font-weight: 800; font-size: 1.05rem; text-align: center;
+  }
+  .diff-box.ok { background: #e3f6ea; color: var(--green-dark); }
+  .diff-box.over { background: #fef3c7; color: #92400e; }
+  .diff-box.short { background: #fde8e8; color: var(--red); }
+
+  .report-pre {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: .85rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word;
+    max-height: 280px; overflow-y: auto; margin: 12px 0;
+  }
+
+  /* ---------- Makulering & ordrar ---------- */
+  .badge-voided {
+    display: inline-block; padding: 2px 6px; border-radius: 6px;
+    background: #fde8e8; color: var(--red); font-size: .75rem; font-weight: 900;
+  }
+  .order-voided { opacity: .6; }
+  .order-voided .o-sum { text-decoration: line-through; }
+  .check-label {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; cursor: pointer; margin-top: 8px;
+  }
+  .check-label input[type="checkbox"] {
+    width: 22px; height: 22px; accent-color: var(--green); cursor: pointer;
+  }
+  .swish-change-warn {
+    background: #fde8e8; color: var(--red); padding: 10px 12px;
+    border-radius: 10px; font-weight: 700; margin: 10px 0;
+    border: 1px solid #f8b4b4; font-size: .92rem;
+  }
+  .shifts-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .shifts-list li {
+    background: var(--bg); padding: 10px 12px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-size: .9rem;
+  }
 </style>
 </head>
 <body>
@@ -482,6 +540,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </header>
+
+  <div id="shiftBanner" class="shift-banner"></div>
 
   <div id="cartBackdrop" class="cart-backdrop" hidden></div>
   <section id="cartPanel" class="cart-panel" hidden aria-label="Varukorg">
@@ -566,9 +626,29 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       </div>
     </div>
 
+    <div class="card" id="shiftsCard">
+      <h3>Kassapass &amp; dagsavslut</h3>
+      <div id="shiftsBody"></div>
+    </div>
+
     <div class="card" id="statsCard">
       <h3>Försäljning</h3>
       <div id="statsBody"></div>
+    </div>
+
+    <div class="card" id="securityCard">
+      <h3>Säkerhet &amp; PIN-lås</h3>
+      <div id="securityBody"></div>
+    </div>
+
+    <div class="card" id="backupCard">
+      <h3>Data &amp; säkerhetskopia</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 12px">Spara en full kopia av meny, inställningar, pass och försäljningshistorik.</p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-secondary btn-block" data-action="export-backup">💾 Exportera säkerhetskopia (JSON)</button>
+        <button type="button" class="btn btn-secondary btn-block" data-action="import-backup">📥 Återställ från säkerhetskopia</button>
+        <input type="file" id="backupFileInput" accept=".json,application/json" hidden>
+      </div>
     </div>
 
     <div class="card">
@@ -578,6 +658,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       </div>
       <h3 style="margin-top:4px">App &amp; offline</h3>
       <p id="appStatus" style="margin:0 0 10px;color:var(--muted)"></p>
+      <div class="field" style="margin:10px 0 14px">
+        <label class="check-label">
+          <input type="checkbox" id="keepAwakeInput">
+          <span>Håll skärmen tänd i kassan</span>
+        </label>
+        <div class="hint">Förhindrar att mobilen släcks mellan kunder vid disken.</div>
+      </div>
       <button type="button" id="installBtn" class="btn btn-block" hidden>Installera på hemskärmen</button>
     </div>
 
@@ -600,6 +687,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     </div>
     <div id="paySwish" class="pay-method">
       <div id="qrWrap" class="qr-wrap"><div id="qr"></div></div>
+      <p class="pay-hint-swish" style="font-weight:700;color:var(--dark);margin:-4px 0 10px;text-align:center;">Öppna Swish-appen och välj Skanna</p>
       <div class="pay-label">Swisha till</div>
       <p id="payNumber" class="pay-number"></p>
       <div id="payRefBox" class="ref-box" hidden>
@@ -665,11 +753,146 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     <ul id="importItemList" class="import-list"></ul>
   </div>
 
+  <div id="importSwishChangeWarn" class="swish-change-warn" hidden></div>
+
   <p class="dialog-warn">⚠️ Detta ersätter nuvarande meny och Swish-nummer på denna enhet. (Köphistorik påverkas inte.)</p>
 
   <div class="dialog-actions">
     <button type="button" id="confirmImportBtn" class="btn btn-green btn-block btn-lg">Ja, läs in och gå till kassan</button>
     <button type="button" id="cancelImportBtn" class="btn btn-secondary btn-block">Avbryt</button>
+  </div>
+</section>
+
+<!-- ================= STARTA PASS MODAL ================= -->
+<div id="startShiftBackdrop" class="dialog-backdrop" hidden></div>
+<section id="startShiftDialog" class="dialog-card" hidden role="dialog" aria-modal="true" aria-labelledby="startShiftHeading">
+  <div class="dialog-head">
+    <h3 id="startShiftHeading">Starta kassapass</h3>
+    <button class="icon-btn" data-action="close-start-shift" aria-label="Stäng" style="color:var(--text)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <p class="dialog-sub">Starta ett säljpass med ingående växelkassa för att kunna göra dagsavslut.</p>
+  <div class="field">
+    <label for="shiftStartFloat">Ingående växelkassa (kr)</label>
+    <input id="shiftStartFloat" type="number" inputmode="numeric" min="0" step="1" value="500" placeholder="500">
+    <div class="hint">Kontanter i kassaskrinet vid passets start. Ange 0 om ni inte har växelkassa.</div>
+  </div>
+  <div class="field">
+    <label for="shiftStartNote">Passnamn / anteckning (valfritt)</label>
+    <input id="shiftStartNote" type="text" maxlength="40" placeholder="t.ex. Förmiddagspass, Anna &amp; Per">
+  </div>
+  <div class="dialog-actions">
+    <button type="button" id="confirmStartShiftBtn" class="btn btn-green btn-block btn-lg">Starta pass</button>
+    <button type="button" class="btn btn-secondary btn-block" data-action="close-start-shift">Avbryt</button>
+  </div>
+</section>
+
+<!-- ================= DAGSAVSLUT MODAL ================= -->
+<div id="endShiftBackdrop" class="dialog-backdrop" hidden></div>
+<section id="endShiftDialog" class="dialog-card" hidden role="dialog" aria-modal="true" aria-labelledby="endShiftHeading">
+  <div class="dialog-head">
+    <h3 id="endShiftHeading">Dagsavslut / Avsluta pass</h3>
+    <button class="icon-btn" data-action="close-end-shift" aria-label="Stäng" style="color:var(--text)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="endShiftSummary" class="import-preview"></div>
+  <div class="field">
+    <label for="shiftCountedCash">Räknade kontanter i kassan (kr)</label>
+    <input id="shiftCountedCash" type="number" inputmode="numeric" min="0" step="1" placeholder="Räkna pengarna i skrinet">
+    <div class="hint">Inklusive växelkassan.</div>
+  </div>
+  <div id="shiftDiffBox" class="diff-box ok" hidden></div>
+  <div class="field">
+    <label for="shiftEndNote">Avslutande kommentar (valfritt)</label>
+    <input id="shiftEndNote" type="text" maxlength="50" placeholder="t.ex. Växlat med kansliet">
+  </div>
+  <div class="dialog-actions">
+    <button type="button" id="confirmEndShiftBtn" class="btn btn-green btn-block btn-lg">Lås och avsluta pass</button>
+    <button type="button" class="btn btn-secondary btn-block" data-action="close-end-shift">Fortsätt sälja</button>
+  </div>
+</section>
+
+<!-- ================= KASSARAPPORT MODAL ================= -->
+<div id="reportBackdrop" class="dialog-backdrop" hidden></div>
+<section id="reportDialog" class="dialog-card" hidden role="dialog" aria-modal="true" aria-labelledby="reportHeading">
+  <div class="dialog-head">
+    <h3 id="reportHeading">Kassarapport</h3>
+    <button class="icon-btn" data-action="close-report" aria-label="Stäng" style="color:var(--text)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <pre id="reportText" class="report-pre"></pre>
+  <div class="dialog-actions">
+    <button type="button" id="shareReportBtn" class="btn btn-green btn-block">📲 Dela rapport (SMS / WhatsApp / e-post)</button>
+    <button type="button" id="copyReportBtn" class="btn btn-secondary btn-block">📋 Kopiera text</button>
+    <button type="button" id="csvShiftBtn" class="btn btn-secondary btn-block">📊 Ladda ner CSV för passet</button>
+    <button type="button" class="btn btn-secondary btn-block" data-action="close-report">Stäng</button>
+  </div>
+</section>
+
+<!-- ================= FRITT BELOPP MODAL ================= -->
+<div id="customAmountBackdrop" class="dialog-backdrop" hidden></div>
+<section id="customAmountDialog" class="dialog-card" hidden role="dialog" aria-modal="true" aria-labelledby="customAmountHeading">
+  <div class="dialog-head">
+    <h3 id="customAmountHeading">Fritt belopp</h3>
+    <button class="icon-btn" data-action="close-custom-amount" aria-label="Stäng" style="color:var(--text)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <p class="dialog-sub">För loppisvaror, lotterier eller gåvor med valfritt pris.</p>
+  <div class="field">
+    <label for="customPriceInput">Belopp (kr)</label>
+    <input id="customPriceInput" type="number" inputmode="numeric" min="1" step="1" placeholder="t.ex. 65">
+  </div>
+  <div class="field">
+    <label for="customNameInput">Beskrivning (valfritt)</label>
+    <input id="customNameInput" type="text" maxlength="30" placeholder="Övrigt">
+  </div>
+  <div class="dialog-actions">
+    <button type="button" id="confirmCustomAmountBtn" class="btn btn-green btn-block btn-lg">Lägg i varukorg</button>
+    <button type="button" class="btn btn-secondary btn-block" data-action="close-custom-amount">Avbryt</button>
+  </div>
+</section>
+
+<!-- ================= PIN LÅS MODALER ================= -->
+<div id="pinPromptBackdrop" class="dialog-backdrop" hidden></div>
+<section id="pinPromptDialog" class="dialog-card" hidden role="dialog" aria-modal="true" aria-labelledby="pinPromptHeading">
+  <div class="dialog-head">
+    <h3 id="pinPromptHeading">Ange PIN-kod</h3>
+    <button class="icon-btn" data-action="close-pin-prompt" aria-label="Stäng" style="color:var(--text)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <p class="dialog-sub">Inställningarna är skyddade med PIN-kod.</p>
+  <div class="field">
+    <input id="pinPromptInput" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="text-align:center;font-size:1.8rem;letter-spacing:6px">
+    <div id="pinPromptError" class="error" hidden>Fel PIN-kod</div>
+  </div>
+  <div class="dialog-actions">
+    <button type="button" id="confirmPinPromptBtn" class="btn btn-green btn-block btn-lg">Lås upp</button>
+    <button type="button" class="btn btn-secondary btn-block" data-action="close-pin-prompt">Avbryt</button>
+  </div>
+</section>
+
+<div id="setPinBackdrop" class="dialog-backdrop" hidden></div>
+<section id="setPinDialog" class="dialog-card" hidden role="dialog" aria-modal="true" aria-labelledby="setPinHeading">
+  <div class="dialog-head">
+    <h3 id="setPinHeading">Ställ in PIN-kod</h3>
+    <button class="icon-btn" data-action="close-set-pin" aria-label="Stäng" style="color:var(--text)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <p class="dialog-sub">Välj en 4-siffrig PIN-kod för att skydda inställningar och Swish-nummer.</p>
+  <div class="field">
+    <label for="newPinInput">Ny PIN-kod (4 siffror)</label>
+    <input id="newPinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" style="text-align:center;font-size:1.8rem;letter-spacing:6px">
+    <div id="newPinError" class="error" hidden>Ange exakt 4 siffror.</div>
+  </div>
+  <div class="dialog-actions">
+    <button type="button" id="confirmSetPinBtn" class="btn btn-green btn-block btn-lg">Spara PIN-kod</button>
+    <button type="button" class="btn btn-secondary btn-block" data-action="close-set-pin">Avbryt</button>
   </div>
 </section>
 
@@ -682,7 +905,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     settings: 'klubbkassan.settings',
     menu: 'klubbkassan.menu',
     orders: 'klubbkassan.orders',
-    cart: 'klubbkassan.cart'
+    cart: 'klubbkassan.cart',
+    shifts: 'klubbkassan.shifts'
   };
   const BRAND = 'Klubbkassan';
 
@@ -722,10 +946,12 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   ];
 
   const state = {
-    settings: Object.assign({ swish: '', title: BRAND, message: 'Kiosk' }, load(KEYS.settings, {}) || {}),
+    settings: Object.assign({ swish: '', title: BRAND, message: 'Kiosk', pin: null, keepAwake: false }, load(KEYS.settings, {}) || {}),
     menu: Array.isArray(load(KEYS.menu, [])) ? load(KEYS.menu, []) : [],
     orders: Array.isArray(load(KEYS.orders, [])) ? load(KEYS.orders, []) : [],
+    shifts: Array.isArray(load(KEYS.shifts, [])) ? load(KEYS.shifts, []) : [],
     cart: (load(KEYS.cart, {}) && typeof load(KEYS.cart, {}) === 'object') ? load(KEYS.cart, {}) : {},
+    customItems: {},
     editingId: null,
     cartOpen: false
   };
@@ -736,6 +962,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   const kr = (n) => n.toLocaleString('sv-SE') + ' kr';
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const vibrate = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
+  const fmtTime = (ts) => new Date(ts).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  const fmtDate = (ts) => new Date(ts).toLocaleDateString('sv-SE');
 
   let toastTimer;
   function toast(msg) {
@@ -786,20 +1014,49 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     return Math.round(n);
   }
 
-  function itemById(id) { return state.menu.find((m) => m.id === id); }
+  function itemById(id) {
+    return state.menu.find((m) => m.id === id) || (state.customItems && state.customItems[id]);
+  }
   function cartLines() {
-    return state.menu
-      .filter((m) => state.cart[m.id] > 0)
-      .map((m) => ({ id: m.id, name: m.name, price: m.price, qty: state.cart[m.id], sum: m.price * state.cart[m.id] }));
+    const lines = [];
+    state.menu.forEach((m) => {
+      if (state.cart[m.id] > 0) {
+        lines.push({ id: m.id, name: m.name, price: m.price, qty: state.cart[m.id], sum: m.price * state.cart[m.id] });
+      }
+    });
+    if (state.customItems) {
+      Object.keys(state.customItems).forEach((id) => {
+        if (state.cart[id] > 0) {
+          const c = state.customItems[id];
+          lines.push({ id: c.id, name: c.name, price: c.price, qty: state.cart[id], sum: c.price * state.cart[id] });
+        }
+      });
+    }
+    return lines;
   }
   function cartTotal() { return cartLines().reduce((a, l) => a + l.sum, 0); }
   function cartCount() { return cartLines().reduce((a, l) => a + l.qty, 0); }
   function reconcileCart() {
-    Object.keys(state.cart).forEach((id) => { if (!itemById(id) || !(state.cart[id] > 0)) delete state.cart[id]; });
+    Object.keys(state.cart).forEach((id) => {
+      if (!itemById(id) || !(state.cart[id] > 0)) {
+        delete state.cart[id];
+        if (state.customItems && state.customItems[id]) delete state.customItems[id];
+      }
+    });
     save(KEYS.cart, state.cart);
   }
   function lockScroll() {
-    const locked = !$('settingsView').hidden || !$('payView').hidden || state.cartOpen || !$('shareDialog').hidden || !$('importDialog').hidden;
+    const locked = !$('settingsView').hidden ||
+      !$('payView').hidden ||
+      state.cartOpen ||
+      !$('shareDialog').hidden ||
+      !$('importDialog').hidden ||
+      !$('startShiftDialog').hidden ||
+      !$('endShiftDialog').hidden ||
+      !$('reportDialog').hidden ||
+      !$('customAmountDialog').hidden ||
+      !$('pinPromptDialog').hidden ||
+      !$('setPinDialog').hidden;
     document.body.classList.toggle('locked', locked);
   }
 
@@ -807,18 +1064,24 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   const catalogEl = $('catalog');
 
   function renderCatalog() {
+    let html = '';
     if (!state.menu.length) {
-      catalogEl.innerHTML = '<div class="catalog-empty"><p><strong>Menyn är tom.</strong></p><p>Lägg till varor under inställningar.</p><button class="btn" data-action="open-settings">Öppna inställningar</button></div>';
-      return;
+      html = '<div class="catalog-empty"><p><strong>Menyn är tom.</strong></p><p>Lägg till varor under inställningar.</p><button class="btn" data-action="open-settings">Öppna inställningar</button></div>';
+    } else {
+      html = state.menu.map((m) => {
+        const q = state.cart[m.id] || 0;
+        return '<button class="tile' + (q ? ' in-cart' : '') + '" data-add="' + esc(m.id) + '" aria-label="Lägg till ' + esc(m.name) + ', ' + kr(m.price) + '">' +
+          '<span class="tile-name">' + esc(m.name) + '</span>' +
+          '<span class="tile-price">' + kr(m.price) + '</span>' +
+          (q ? '<span class="tile-qty">' + q + '</span>' : '') +
+          '</button>';
+      }).join('');
     }
-    catalogEl.innerHTML = state.menu.map((m) => {
-      const q = state.cart[m.id] || 0;
-      return '<button class="tile' + (q ? ' in-cart' : '') + '" data-add="' + esc(m.id) + '" aria-label="Lägg till ' + esc(m.name) + ', ' + kr(m.price) + '">' +
-        '<span class="tile-name">' + esc(m.name) + '</span>' +
-        '<span class="tile-price">' + kr(m.price) + '</span>' +
-        (q ? '<span class="tile-qty">' + q + '</span>' : '') +
-        '</button>';
-    }).join('');
+    html += '<button type="button" class="tile tile-custom" data-action="custom-item" aria-label="Lägg till fritt belopp">' +
+      '<span class="tile-name">+ Fritt belopp</span>' +
+      '<span class="tile-price">Valfritt pris</span>' +
+      '</button>';
+    catalogEl.innerHTML = html;
   }
 
   function renderCart() {
@@ -859,13 +1122,45 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const title = state.settings.title || BRAND;
     $('posTitle').textContent = title;
     document.title = title === BRAND ? BRAND : title + ' · ' + BRAND;
+    renderShiftBanner();
     renderCatalog();
     renderCart();
   }
 
+  function activeShift() {
+    return state.shifts.find((s) => !s.closedAt);
+  }
+
+  function renderShiftBanner() {
+    const s = activeShift();
+    const banner = $('shiftBanner');
+    if (!banner) return;
+    if (s) {
+      banner.className = 'shift-banner active';
+      banner.innerHTML = '<span>🟢 Pass aktivt (start ' + esc(fmtTime(s.openedAt)) + ' · växel ' + kr(s.startFloat) + ')</span>' +
+        '<button type="button" class="btn btn-xs" data-action="close-shift">Avsluta pass</button>';
+    } else {
+      banner.className = 'shift-banner';
+      banner.innerHTML = '<span>⚪ Inget aktivt pass</span>' +
+        '<button type="button" class="btn btn-xs btn-green" data-action="start-shift">Starta pass</button>';
+    }
+  }
+
+  $('shiftBanner').addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.action === 'start-shift') openStartShiftDialog();
+    else if (t.dataset.action === 'close-shift') openEndShiftDialog();
+  });
+
   function changeQty(id, delta) {
     const q = (state.cart[id] || 0) + delta;
-    if (q <= 0) delete state.cart[id]; else state.cart[id] = q;
+    if (q <= 0) {
+      delete state.cart[id];
+      if (state.customItems && state.customItems[id]) delete state.customItems[id];
+    } else {
+      state.cart[id] = q;
+    }
     save(KEYS.cart, state.cart);
     renderCatalog();
     renderCart();
@@ -874,6 +1169,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   function bump(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
   catalogEl.addEventListener('click', (e) => {
+    const customBtn = e.target.closest('[data-action="custom-item"]');
+    if (customBtn) {
+      openCustomAmountDialog();
+      return;
+    }
     const tile = e.target.closest('[data-add]');
     if (tile) {
       const id = tile.getAttribute('data-add');
@@ -885,8 +1185,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       pushUndo(id);
       return;
     }
-    if (e.target.closest('[data-action="open-settings"]')) openSettings();
+    if (e.target.closest('[data-action="open-settings"]')) $('gearBtn').click();
   });
+
+  /* ---- Fritt belopp dialog ---- */
+  function openCustomAmountDialog() {
+    $('customPriceInput').value = '';
+    $('customNameInput').value = '';
+    $('customAmountDialog').hidden = false;
+    $('customAmountBackdrop').hidden = false;
+    lockScroll();
+    setTimeout(() => $('customPriceInput').focus(), 50);
+  }
+  function closeCustomAmountDialog() {
+    $('customAmountDialog').hidden = true;
+    $('customAmountBackdrop').hidden = true;
+    lockScroll();
+  }
+  $('confirmCustomAmountBtn').addEventListener('click', () => {
+    const price = parsePrice($('customPriceInput').value);
+    if (price === null || price < 0) {
+      toast('Ange ett giltigt belopp (heltal i kr)');
+      $('customPriceInput').focus();
+      return;
+    }
+    const name = $('customNameInput').value.trim() || 'Övrigt';
+    const id = 'c_' + uid();
+    state.customItems[id] = { id: id, name: name, price: price };
+    changeQty(id, 1);
+    closeCustomAmountDialog();
+    vibrate(12);
+    bump($('cartBtn'));
+  });
+  document.querySelectorAll('[data-action="close-custom-amount"]').forEach((b) => b.addEventListener('click', closeCustomAmountDialog));
+  $('customAmountBackdrop').addEventListener('click', closeCustomAmountDialog);
 
   /* ---- Ångra senaste tryck ---- */
   const UNDO_MS = 4000;
@@ -948,14 +1280,130 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     if (!t) return;
     if (t.dataset.inc) { changeQty(t.dataset.inc, 1); vibrate(8); }
     else if (t.dataset.dec) { changeQty(t.dataset.dec, -1); vibrate(8); }
-    else if (t.dataset.del) { delete state.cart[t.dataset.del]; save(KEYS.cart, state.cart); renderCatalog(); renderCart(); vibrate(15); }
+    else if (t.dataset.del) {
+      delete state.cart[t.dataset.del];
+      if (state.customItems && state.customItems[t.dataset.del]) delete state.customItems[t.dataset.del];
+      save(KEYS.cart, state.cart);
+      renderCatalog();
+      renderCart();
+      vibrate(15);
+    }
     else if (t.dataset.action === 'clear-cart') {
-      state.cart = {}; save(KEYS.cart, state.cart); renderCatalog(); renderCart(); vibrate(20); hideUndo(); closeCart(); toast('Varukorgen är rensad');
+      state.cart = {};
+      state.customItems = {};
+      save(KEYS.cart, state.cart);
+      renderCatalog();
+      renderCart();
+      vibrate(20);
+      hideUndo();
+      closeCart();
+      toast('Varukorgen är rensad');
     }
     else if (t.dataset.action === 'close-cart') closeCart();
   });
 
-  $('gearBtn').addEventListener('click', openSettings);
+  /* ================= PIN-lås ================= */
+  let pinSuccessCallback = null;
+
+  function openPinPromptDialog(callback) {
+    pinSuccessCallback = callback;
+    $('pinPromptInput').value = '';
+    $('pinPromptError').hidden = true;
+    $('pinPromptDialog').hidden = false;
+    $('pinPromptBackdrop').hidden = false;
+    lockScroll();
+    setTimeout(() => $('pinPromptInput').focus(), 50);
+  }
+  function closePinPromptDialog() {
+    $('pinPromptDialog').hidden = true;
+    $('pinPromptBackdrop').hidden = true;
+    pinSuccessCallback = null;
+    lockScroll();
+  }
+  $('confirmPinPromptBtn').addEventListener('click', () => {
+    const entered = $('pinPromptInput').value.trim();
+    if (entered === state.settings.pin) {
+      const cb = pinSuccessCallback;
+      closePinPromptDialog();
+      if (typeof cb === 'function') cb();
+    } else {
+      $('pinPromptError').hidden = false;
+      $('pinPromptInput').value = '';
+      $('pinPromptInput').focus();
+      vibrate([20, 50, 20]);
+    }
+  });
+  document.querySelectorAll('[data-action="close-pin-prompt"]').forEach((b) => b.addEventListener('click', closePinPromptDialog));
+  $('pinPromptBackdrop').addEventListener('click', closePinPromptDialog);
+
+  function openSetPinDialog() {
+    $('newPinInput').value = '';
+    $('newPinError').hidden = true;
+    $('setPinDialog').hidden = false;
+    $('setPinBackdrop').hidden = false;
+    lockScroll();
+    setTimeout(() => $('newPinInput').focus(), 50);
+  }
+  function closeSetPinDialog() {
+    $('setPinDialog').hidden = true;
+    $('setPinBackdrop').hidden = true;
+    lockScroll();
+  }
+  $('confirmSetPinBtn').addEventListener('click', () => {
+    const val = $('newPinInput').value.trim();
+    if (!/^\d{4}$/.test(val)) {
+      $('newPinError').hidden = false;
+      $('newPinInput').focus();
+      return;
+    }
+    state.settings.pin = val;
+    save(KEYS.settings, state.settings);
+    closeSetPinDialog();
+    renderSecurity();
+    toast('✓ PIN-kod är sparad');
+  });
+  document.querySelectorAll('[data-action="close-set-pin"]').forEach((b) => b.addEventListener('click', closeSetPinDialog));
+  $('setPinBackdrop').addEventListener('click', closeSetPinDialog);
+
+  function renderSecurity() {
+    const body = $('securityBody');
+    if (!body) return;
+    if (state.settings.pin) {
+      body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
+        '<span style="font-size:1.6rem">🔒</span><div><strong>PIN-lås är aktivt</strong><div style="font-size:.85rem;color:var(--muted)">Inställningar kräver 4-siffrig PIN.</div></div>' +
+        '</div>' +
+        '<div class="row-actions">' +
+        '<button type="button" class="btn btn-secondary" data-action="change-pin">Ändra PIN</button>' +
+        '<button type="button" class="btn btn-danger" data-action="remove-pin">Ta bort PIN</button>' +
+        '</div>';
+    } else {
+      body.innerHTML = '<p style="color:var(--muted);font-size:.9rem;margin:0 0 10px">Skydda Swish-nummer, meny och dagsavslut med en 4-siffrig PIN så att obehöriga inte råkar ändra kassan.</p>' +
+        '<button type="button" class="btn btn-secondary btn-block" data-action="set-pin">Aktivera PIN-lås</button>';
+    }
+  }
+
+  $('securityCard').addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.action === 'set-pin' || t.dataset.action === 'change-pin') {
+      openSetPinDialog();
+    } else if (t.dataset.action === 'remove-pin') {
+      if (confirm('Ta bort PIN-låset? Inställningar blir då öppna för alla.')) {
+        state.settings.pin = null;
+        save(KEYS.settings, state.settings);
+        renderSecurity();
+        toast('PIN-låset är borttaget');
+      }
+    }
+  });
+
+  $('gearBtn').addEventListener('click', () => {
+    if (state.settings.pin) {
+      openPinPromptDialog(() => openSettings());
+    } else {
+      openSettings();
+    }
+  });
 
   /* ================= Betalning ================= */
   let wakeLock = null;
@@ -963,6 +1411,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) { wakeLock = null; }
   }
   function releaseWakeLock() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+
+  async function updateWakeLock() {
+    if (document.visibilityState !== 'visible') return;
+    const inPay = !$('payView').hidden;
+    const keep = !!state.settings.keepAwake && $('settingsView').hidden;
+    if (inPay || keep) {
+      if (!wakeLock) await requestWakeLock();
+    } else {
+      if (wakeLock && $('payView').hidden) releaseWakeLock();
+    }
+  }
 
   let currentRefCode = '';
   function generateRefCode() {
@@ -1024,11 +1483,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     $('payView').hidden = false;
     lockScroll();
     vibrate(20);
-    requestWakeLock();
+    updateWakeLock();
   }
   function closePay() {
     $('payView').hidden = true;
-    releaseWakeLock();
+    updateWakeLock();
     lockScroll();
   }
 
@@ -1120,6 +1579,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     let saveOk = true;
     const total = cartTotal();
     const currentMethod = payMethod;
+    const currentShift = activeShift();
     if (lines.length) {
       const order = {
         id: uid(),
@@ -1127,7 +1587,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         ts: Date.now(),
         items: lines.map((l) => ({ name: l.name, price: l.price, qty: l.qty })),
         total: total,
-        method: currentMethod
+        method: currentMethod,
+        shiftId: currentShift ? currentShift.id : undefined
       };
       if (currentMethod === 'cash' && cashReceived !== null) order.received = cashReceived;
       state.orders.push(order);
@@ -1150,7 +1611,377 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('doneBtn').addEventListener('click', completePayment);
   $('cancelBtn').addEventListener('click', () => { closePay(); vibrate(10); });
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && !$('payView').hidden) requestWakeLock();
+    if (document.visibilityState === 'visible') updateWakeLock();
+  });
+
+  /* ================= Kassapass & Dagsavslut ================= */
+  function openStartShiftDialog() {
+    $('shiftStartFloat').value = '500';
+    $('shiftStartNote').value = '';
+    $('startShiftDialog').hidden = false;
+    $('startShiftBackdrop').hidden = false;
+    lockScroll();
+    setTimeout(() => $('shiftStartFloat').focus(), 50);
+  }
+  function closeStartShiftDialog() {
+    $('startShiftDialog').hidden = true;
+    $('startShiftBackdrop').hidden = true;
+    lockScroll();
+  }
+  $('confirmStartShiftBtn').addEventListener('click', () => {
+    const floatVal = parsePrice($('shiftStartFloat').value) ?? 0;
+    const note = $('shiftStartNote').value.trim();
+    const shift = {
+      id: uid(),
+      openedAt: Date.now(),
+      closedAt: null,
+      startFloat: floatVal,
+      note: note
+    };
+    state.shifts.push(shift);
+    save(KEYS.shifts, state.shifts);
+    closeStartShiftDialog();
+    renderShiftBanner();
+    renderShifts();
+    vibrate([15, 30, 15]);
+    toast('✓ Passet är startat (växelkassa ' + kr(floatVal) + ')');
+  });
+  document.querySelectorAll('[data-action="close-start-shift"]').forEach((b) => b.addEventListener('click', closeStartShiftDialog));
+  $('startShiftBackdrop').addEventListener('click', closeStartShiftDialog);
+
+  let currentEndingShift = null;
+
+  function openEndShiftDialog(shift) {
+    const s = shift || activeShift();
+    if (!s) { toast('Inget aktivt pass att avsluta'); return; }
+    currentEndingShift = s;
+
+    const shiftOrders = state.orders.filter((o) => o.shiftId === s.id && !o.voided);
+    const swishOrders = shiftOrders.filter((o) => o.method === 'swish');
+    const cashOrders = shiftOrders.filter((o) => o.method === 'cash');
+    const swishTotal = swishOrders.reduce((a, o) => a + o.total, 0);
+    const cashTotal = cashOrders.reduce((a, o) => a + o.total, 0);
+    const totalSales = swishTotal + cashTotal;
+    const expectedCash = s.startFloat + cashTotal;
+
+    $('endShiftSummary').innerHTML =
+      '<div style="font-weight:800;font-size:1.1rem;margin-bottom:6px">Summering av passet</div>' +
+      '<div style="color:var(--muted);font-size:.88rem;margin-bottom:10px">Startat ' + esc(fmtDateTime(s.openedAt)) + (s.note ? ' · ' + esc(s.note) : '') + '</div>' +
+      '<div style="display:grid;gap:4px;font-size:.95rem">' +
+        '<div><strong>Ingående växelkassa:</strong> ' + kr(s.startFloat) + '</div>' +
+        '<div><strong>Kontantförsäljning:</strong> ' + kr(cashTotal) + ' (' + cashOrders.length + ' köp)</div>' +
+        '<div><strong>Swish-försäljning:</strong> ' + kr(swishTotal) + ' (' + swishOrders.length + ' köp)</div>' +
+        '<div><strong>Totalt sålt:</strong> ' + kr(totalSales) + '</div>' +
+        '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:1.05rem"><strong>Beräknat i kontantkassan:</strong> ' + kr(expectedCash) + '</div>' +
+      '</div>';
+
+    $('shiftCountedCash').value = '';
+    $('shiftEndNote').value = '';
+    const diffBox = $('shiftDiffBox');
+    diffBox.hidden = true;
+    diffBox.className = 'diff-box ok';
+
+    $('shiftCountedCash').oninput = () => {
+      const v = $('shiftCountedCash').value.trim();
+      if (v === '') { diffBox.hidden = true; return; }
+      const counted = parsePrice(v);
+      if (counted === null) { diffBox.hidden = true; return; }
+      const diff = counted - expectedCash;
+      diffBox.hidden = false;
+      if (diff === 0) {
+        diffBox.className = 'diff-box ok';
+        diffBox.textContent = '✓ Kassan stämmer precis! (0 kr diff)';
+      } else if (diff > 0) {
+        diffBox.className = 'diff-box over';
+        diffBox.textContent = 'Överskott: +' + kr(diff);
+      } else {
+        diffBox.className = 'diff-box short';
+        diffBox.textContent = 'Underskott: ' + kr(diff);
+      }
+    };
+
+    $('endShiftDialog').hidden = false;
+    $('endShiftBackdrop').hidden = false;
+    lockScroll();
+    setTimeout(() => $('shiftCountedCash').focus(), 50);
+  }
+  function closeEndShiftDialog() {
+    $('endShiftDialog').hidden = true;
+    $('endShiftBackdrop').hidden = true;
+    currentEndingShift = null;
+    lockScroll();
+  }
+  $('confirmEndShiftBtn').addEventListener('click', () => {
+    if (!currentEndingShift) return;
+    const s = currentEndingShift;
+    const countedStr = $('shiftCountedCash').value.trim();
+    const counted = parsePrice(countedStr);
+    if (counted === null) {
+      toast('Ange räknat belopp i kassan');
+      $('shiftCountedCash').focus();
+      return;
+    }
+
+    const shiftOrders = state.orders.filter((o) => o.shiftId === s.id && !o.voided);
+    const swishOrders = shiftOrders.filter((o) => o.method === 'swish');
+    const cashOrders = shiftOrders.filter((o) => o.method === 'cash');
+    const swishTotal = swishOrders.reduce((a, o) => a + o.total, 0);
+    const cashTotal = cashOrders.reduce((a, o) => a + o.total, 0);
+    const expectedCash = s.startFloat + cashTotal;
+    const diff = counted - expectedCash;
+
+    s.closedAt = Date.now();
+    s.countedCash = counted;
+    s.expectedCash = expectedCash;
+    s.diff = diff;
+    s.cashTotal = cashTotal;
+    s.swishTotal = swishTotal;
+    s.totalSales = swishTotal + cashTotal;
+    const endNote = $('shiftEndNote').value.trim();
+    if (endNote) s.note = s.note ? (s.note + ' · ' + endNote) : endNote;
+
+    save(KEYS.shifts, state.shifts);
+    closeEndShiftDialog();
+    renderShiftBanner();
+    renderShifts();
+    vibrate([20, 50, 20]);
+    toast('✓ Passet är avslutat!');
+    openReportDialog(s);
+  });
+  document.querySelectorAll('[data-action="close-end-shift"]').forEach((b) => b.addEventListener('click', closeEndShiftDialog));
+  $('endShiftBackdrop').addEventListener('click', closeEndShiftDialog);
+
+  /* ---- Kassarapport dialog ---- */
+  let currentViewingShift = null;
+
+  function generateShiftReportText(s) {
+    const title = state.settings.title || BRAND;
+    const shiftOrders = state.orders.filter((o) => o.shiftId === s.id);
+    const activeOrders = shiftOrders.filter((o) => !o.voided);
+    const voidedOrders = shiftOrders.filter((o) => o.voided);
+    const swishOrders = activeOrders.filter((o) => o.method === 'swish');
+    const cashOrders = activeOrders.filter((o) => o.method === 'cash');
+
+    const swishTotal = swishOrders.reduce((a, o) => a + o.total, 0);
+    const cashTotal = cashOrders.reduce((a, o) => a + o.total, 0);
+    const totalSales = swishTotal + cashTotal;
+    const counted = s.countedCash ?? 0;
+    const expected = s.expectedCash ?? (s.startFloat + cashTotal);
+    const diff = s.diff ?? (counted - expected);
+
+    const codes = swishOrders.filter((o) => o.ref).map((o) => '#' + o.ref);
+    const codesStr = codes.length ? codes.join(', ') : 'Inga';
+
+    let txt = '📊 KASSARAPPORT – ' + title + '\n' +
+      'Datum: ' + fmtDate(s.openedAt) + ' (' + fmtTime(s.openedAt) + ' – ' + (s.closedAt ? fmtTime(s.closedAt) : 'Pågående') + ')\n';
+    if (s.note) txt += 'Anteckning: ' + s.note + '\n';
+    txt += '------------------------------------\n' +
+      'FÖRSÄLJNING\n' +
+      'Swish: ' + kr(swishTotal) + ' (' + swishOrders.length + ' köp)\n' +
+      'Kontant: ' + kr(cashTotal) + ' (' + cashOrders.length + ' köp)\n' +
+      'Totalt sålt: ' + kr(totalSales) + ' (' + activeOrders.length + ' köp)\n' +
+      '------------------------------------\n' +
+      'KONTANTAVSTÄMNING\n' +
+      'Ingående växelkassa: ' + kr(s.startFloat) + '\n' +
+      '+ Kontantförsäljning: ' + kr(cashTotal) + '\n' +
+      '= Beräknat i kassan: ' + kr(expected) + '\n' +
+      'Faktiskt räknat: ' + kr(counted) + '\n' +
+      'Differens: ' + (diff > 0 ? ('+' + kr(diff) + ' (överskott)') : diff < 0 ? (kr(diff) + ' (underskott)') : '0 kr (stämmer)') + '\n' +
+      '------------------------------------\n' +
+      'SWISH-KONTROLLKODER\n' + codesStr + '\n';
+
+    if (voidedOrders.length) {
+      const voidedSum = voidedOrders.reduce((a, o) => a + o.total, 0);
+      txt += '------------------------------------\n' +
+        'MAKULERADE KÖP\n' + voidedOrders.length + ' st köp borträknade (totalt ' + kr(voidedSum) + ')\n';
+    }
+    return txt;
+  }
+
+  function openReportDialog(shift) {
+    currentViewingShift = shift;
+    $('reportText').textContent = generateShiftReportText(shift);
+    $('reportDialog').hidden = false;
+    $('reportBackdrop').hidden = false;
+    lockScroll();
+  }
+  function closeReportDialog() {
+    $('reportDialog').hidden = true;
+    $('reportBackdrop').hidden = true;
+    currentViewingShift = null;
+    lockScroll();
+  }
+  document.querySelectorAll('[data-action="close-report"]').forEach((b) => b.addEventListener('click', closeReportDialog));
+  $('reportBackdrop').addEventListener('click', closeReportDialog);
+
+  async function copyToClipboard(text) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      toast('✓ Rapporten är kopierad till urklipp');
+    } catch (e) {
+      toast('Kunde inte kopiera text');
+    }
+  }
+
+  $('shareReportBtn').addEventListener('click', async () => {
+    if (!currentViewingShift) return;
+    const text = generateShiftReportText(currentViewingShift);
+    const title = 'Kassarapport – ' + (state.settings.title || BRAND);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: title, text: text });
+        toast('✓ Rapporten har delats');
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    copyToClipboard(text);
+  });
+
+  $('copyReportBtn').addEventListener('click', () => {
+    if (!currentViewingShift) return;
+    copyToClipboard(generateShiftReportText(currentViewingShift));
+  });
+
+  $('csvShiftBtn').addEventListener('click', () => {
+    if (!currentViewingShift) return;
+    exportCSV(currentViewingShift.id);
+  });
+
+  function renderShifts() {
+    const body = $('shiftsBody');
+    if (!body) return;
+    const active = activeShift();
+    const closedShifts = state.shifts.filter((s) => s.closedAt).reverse();
+
+    let html = '<div style="margin-bottom:12px">';
+    if (active) {
+      html += '<div style="background:#e3f6ea;padding:12px;border-radius:12px;margin-bottom:10px">' +
+        '<div style="font-weight:800;color:var(--green-dark);margin-bottom:4px">🟢 Aktivt pass pågår</div>' +
+        '<div style="font-size:.9rem;color:var(--muted);margin-bottom:8px">Startat ' + esc(fmtDateTime(active.openedAt)) + ' · Växelkassa: ' + kr(active.startFloat) + '</div>' +
+        '<button type="button" class="btn btn-green btn-block" data-action="close-shift">Avsluta pass / Dagsavslut</button>' +
+        '</div>';
+    } else {
+      html += '<div style="background:var(--bg);padding:12px;border-radius:12px;margin-bottom:10px">' +
+        '<div style="font-weight:800;margin-bottom:4px">⚪ Inget aktivt pass</div>' +
+        '<div style="font-size:.9rem;color:var(--muted);margin-bottom:8px">Starta ett pass med växelkassa för att hålla ordning på dagsavslut.</div>' +
+        '<button type="button" class="btn btn-block" data-action="start-shift">Starta nytt pass</button>' +
+        '</div>';
+    }
+    html += '</div>';
+
+    if (closedShifts.length) {
+      html += '<div class="subhead" style="margin-bottom:8px">Tidigare pass (' + closedShifts.length + ' st)</div>' +
+        '<ul class="shifts-list">' +
+        closedShifts.slice(0, 10).map((s) =>
+          '<li><div><strong>' + esc(fmtDate(s.openedAt)) + ' (' + esc(fmtTime(s.openedAt)) + '–' + esc(fmtTime(s.closedAt)) + ')</strong>' +
+          '<div style="color:var(--muted);font-size:.82rem">' + kr(s.totalSales ?? 0) + ' sålt · Diff: ' + kr(s.diff ?? 0) + (s.note ? ' · ' + esc(s.note) : '') + '</div></div>' +
+          '<button type="button" class="btn btn-xs" data-view-report="' + esc(s.id) + '">Visa rapport</button>' +
+          '</li>'
+        ).join('') +
+        '</ul>';
+    }
+    body.innerHTML = html;
+  }
+
+  $('shiftsCard').addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.action === 'start-shift') {
+      openStartShiftDialog();
+    } else if (t.dataset.action === 'close-shift') {
+      openEndShiftDialog();
+    } else if (t.dataset.viewReport) {
+      const shift = state.shifts.find((s) => s.id === t.dataset.viewReport);
+      if (shift) openReportDialog(shift);
+    }
+  });
+
+  /* ================= Säkerhetskopia ================= */
+  function exportBackup() {
+    const backup = {
+      app: BRAND,
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      settings: state.settings,
+      menu: state.menu,
+      shifts: state.shifts,
+      orders: state.orders
+    };
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'klubbkassan-backup-' + new Date().toLocaleDateString('sv-SE') + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast('✓ Säkerhetskopia har laddats ner');
+  }
+
+  function importBackup(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data || !data.settings || !Array.isArray(data.menu)) {
+          toast('Ogiltig säkerhetskopia-fil');
+          return;
+        }
+        if (!confirm('Återställ kassan från filen?\n\nDetta ersätter nuvarande inställningar, meny, pass och historik på denna enhet.')) {
+          return;
+        }
+        state.settings = Object.assign({ swish: '', title: BRAND, message: 'Kiosk', pin: null, keepAwake: false }, data.settings);
+        state.menu = Array.isArray(data.menu) ? data.menu : [];
+        state.shifts = Array.isArray(data.shifts) ? data.shifts : [];
+        state.orders = Array.isArray(data.orders) ? data.orders : [];
+        state.cart = {};
+        state.customItems = {};
+
+        save(KEYS.settings, state.settings);
+        save(KEYS.menu, state.menu);
+        save(KEYS.shifts, state.shifts);
+        save(KEYS.orders, state.orders);
+        save(KEYS.cart, state.cart);
+
+        renderPOS();
+        renderShiftBanner();
+        renderShifts();
+        renderStats();
+        renderSecurity();
+        updateWakeLock();
+        toast('✓ Säkerhetskopia återställd!');
+      } catch (err) {
+        toast('Kunde inte läsa in filen');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  $('backupCard').addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.action === 'export-backup') {
+      exportBackup();
+    } else if (t.dataset.action === 'import-backup') {
+      $('backupFileInput').click();
+    }
+  });
+
+  $('backupFileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) importBackup(file);
+    e.target.value = '';
   });
 
   /* ================= Inställningar ================= */
@@ -1166,24 +1997,35 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     $('swishInput').value = s.swish ? formatSwish(s.swish) : '';
     $('titleInput').value = s.title || '';
     $('messageInput').value = s.message || '';
+    $('keepAwakeInput').checked = !!s.keepAwake;
     $('swishError').hidden = true;
     $('swishInput').classList.remove('invalid');
     $('formError').hidden = true;
     $('addError').hidden = true;
     state.editingId = null;
     renderMenuList();
+    renderShifts();
     renderStats();
+    renderSecurity();
     $('settingsView').hidden = false;
     $('settingsView').scrollTop = 0;
+    updateWakeLock();
     lockScroll();
   }
   function closeSettings() {
     $('settingsView').hidden = true;
     state.editingId = null;
+    updateWakeLock();
     lockScroll();
     renderPOS();
   }
   $('settingsClose').addEventListener('click', closeSettings);
+
+  $('keepAwakeInput').addEventListener('change', () => {
+    state.settings.keepAwake = $('keepAwakeInput').checked;
+    save(KEYS.settings, state.settings);
+    updateWakeLock();
+  });
 
   $('swishInput').addEventListener('blur', () => {
     const n = normalizeSwish($('swishInput').value);
@@ -1333,38 +2175,48 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       body.innerHTML = '<p class="menu-empty" style="padding:0">Inga köp registrerade ännu. Varje köp sparas när du trycker "Klar / Ny kund".</p>';
       return;
     }
-    const total = orders.reduce((a, o) => a + o.total, 0);
-    const cashOrders = orders.filter((o) => o.method === 'cash');
+    const activeOrders = orders.filter((o) => !o.voided);
+    const voidedOrders = orders.filter((o) => o.voided);
+    const total = activeOrders.reduce((a, o) => a + o.total, 0);
+    const cashOrders = activeOrders.filter((o) => o.method === 'cash');
     const cashTotal = cashOrders.reduce((a, o) => a + o.total, 0);
     const swishTotal = total - cashTotal;
     const perItem = {};
-    orders.forEach((o) => o.items.forEach((it) => {
+    activeOrders.forEach((o) => o.items.forEach((it) => {
       const p = perItem[it.name] || (perItem[it.name] = { name: it.name, qty: 0, sum: 0 });
       p.qty += it.qty;
       p.sum += it.qty * it.price;
     }));
     const rows = Object.values(perItem).sort((a, b) => b.sum - a.sum);
-    const recent = orders.slice(-10).reverse();
+    const recent = orders.slice(-15).reverse();
 
     body.innerHTML =
       '<div class="stats-grid">' +
-        '<div class="stat"><div class="label">Antal köp</div><div class="value">' + orders.length.toLocaleString('sv-SE') + '</div></div>' +
+        '<div class="stat"><div class="label">Antal köp</div><div class="value">' + activeOrders.length.toLocaleString('sv-SE') + '</div></div>' +
         '<div class="stat"><div class="label">Total försäljning</div><div class="value">' + kr(total) + '</div></div>' +
-        '<div class="stat"><div class="label">Swish (' + (orders.length - cashOrders.length) + ' köp)</div><div class="value">' + kr(swishTotal) + '</div></div>' +
+        '<div class="stat"><div class="label">Swish (' + (activeOrders.length - cashOrders.length) + ' köp)</div><div class="value">' + kr(swishTotal) + '</div></div>' +
         '<div class="stat"><div class="label">Kontant (' + cashOrders.length + ' köp)</div><div class="value">' + kr(cashTotal) + '</div></div>' +
       '</div>' +
+      (voidedOrders.length ? ('<p style="margin:-4px 0 10px;color:var(--red);font-size:.88rem">⚠️ ' + voidedOrders.length + ' st makulerade köp (' + kr(voidedOrders.reduce((a, o) => a + o.total, 0)) + ') borträknade.</p>') : '') +
       '<p class="hint" style="margin:-4px 0 10px;color:var(--muted);font-size:.88rem">Sedan ' + esc(fmtDateTime(orders[0].ts)) + '</p>' +
       '<table class="sales"><thead><tr><th>Vara</th><th class="num">Antal</th><th class="num">Summa</th></tr></thead><tbody>' +
         rows.map((r) => '<tr><td>' + esc(r.name) + '</td><td class="num">' + r.qty + '</td><td class="num">' + kr(r.sum) + '</td></tr>').join('') +
       '</tbody></table>' +
       '<div class="subhead">Senaste köp</div>' +
       '<ul class="orders-list">' +
-        recent.map((o) =>
-          '<li><div class="o-info"><div class="o-time">' + esc(fmtDateTime(o.ts)) + ' · ' + (o.method === 'cash' ? (o.total === 0 ? '0 kr' : 'Kontant') : 'Swish' + (o.ref ? ' (#' + esc(o.ref) + ')' : '')) + '</div>' +
-          '<div class="o-items">' + esc(o.items.map((it) => it.qty + '× ' + it.name).join(', ')) + '</div></div>' +
-          '<span class="o-sum">' + kr(o.total) + '</span>' +
-          '<button class="mini del" style="width:42px;height:42px;border-radius:10px;background:#fde8e8;color:var(--red);display:inline-flex;align-items:center;justify-content:center" data-order-del="' + esc(o.id) + '" aria-label="Ta bort köp">' + icons.del + '</button></li>'
-        ).join('') +
+        recent.map((o) => {
+          if (o.voided) {
+            return '<li class="order-voided"><div class="o-info">' +
+              '<div class="o-time">' + esc(fmtDateTime(o.ts)) + ' · <span class="badge-voided">MAKULERAT</span></div>' +
+              '<div class="o-items">' + esc(o.items.map((it) => it.qty + '× ' + it.name).join(', ')) + '</div></div>' +
+              '<span class="o-sum">' + kr(o.total) + '</span>' +
+              '<span style="width:42px"></span></li>';
+          }
+          return '<li><div class="o-info"><div class="o-time">' + esc(fmtDateTime(o.ts)) + ' · ' + (o.method === 'cash' ? (o.total === 0 ? '0 kr' : 'Kontant') : 'Swish' + (o.ref ? ' (#' + esc(o.ref) + ')' : '')) + '</div>' +
+            '<div class="o-items">' + esc(o.items.map((it) => it.qty + '× ' + it.name).join(', ')) + '</div></div>' +
+            '<span class="o-sum">' + kr(o.total) + '</span>' +
+            '<button class="mini del" style="width:42px;height:42px;border-radius:10px;background:#fde8e8;color:var(--red);display:inline-flex;align-items:center;justify-content:center" data-order-void="' + esc(o.id) + '" aria-label="Makulera köp" title="Makulera köp">' + icons.del + '</button></li>';
+        }).join('') +
       '</ul>' +
       '<div class="row-actions">' +
         '<button type="button" class="btn" data-action="export-csv">Exportera CSV</button>' +
@@ -1373,14 +2225,16 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     body.querySelectorAll('.mini.del svg').forEach((s) => { s.style.width = '20px'; s.style.height = '20px'; });
   }
 
-  function exportCSV() {
-    const rows = [['Datum', 'Tid', 'Order-ID', 'Betalsätt', 'Kontrollkod', 'Vara', 'Antal', 'Styckpris', 'Summa']];
-    state.orders.forEach((o) => {
+  function exportCSV(targetShiftId) {
+    const rows = [['Datum', 'Tid', 'Order-ID', 'Pass', 'Status', 'Betalsätt', 'Kontrollkod', 'Vara', 'Antal', 'Styckpris', 'Summa']];
+    const sourceOrders = targetShiftId ? state.orders.filter((o) => o.shiftId === targetShiftId) : state.orders;
+    sourceOrders.forEach((o) => {
       const d = new Date(o.ts);
       const date = d.toLocaleDateString('sv-SE');
       const time = d.toLocaleTimeString('sv-SE');
       const method = o.method === 'cash' ? (o.total === 0 ? '0 kr' : 'Kontant') : 'Swish';
-      o.items.forEach((it) => rows.push([date, time, o.id, method, o.ref || '', it.name, it.qty, it.price, it.qty * it.price]));
+      const status = o.voided ? 'Makulerat' : 'Giltigt';
+      o.items.forEach((it) => rows.push([date, time, o.id, o.shiftId || '', status, method, o.ref || '', it.name, it.qty, it.price, it.qty * it.price]));
     });
     const csv = '\ufeff' + rows.map((r) => r.map((c) => {
       const s = String(c);
@@ -1389,7 +2243,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'klubbkassan-forsaljning-' + new Date().toLocaleDateString('sv-SE') + '.csv';
+    a.download = (targetShiftId ? 'klubbkassan-pass-' : 'klubbkassan-forsaljning-') + new Date().toLocaleDateString('sv-SE') + '.csv';
     document.body.appendChild(a);
     a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
@@ -1398,19 +2252,28 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('statsCard').addEventListener('click', (e) => {
     const t = e.target.closest('button');
     if (!t) return;
-    if (t.dataset.orderDel) {
-      if (confirm('Ta bort detta köp från historiken?')) {
-        state.orders = state.orders.filter((o) => o.id !== t.dataset.orderDel);
+    if (t.dataset.orderVoid) {
+      const order = state.orders.find((o) => o.id === t.dataset.orderVoid);
+      if (order && confirm('Vill du makulera detta köp på ' + kr(order.total) + '?\n\nKöpet räknas bort från försäljningen men sparas som makulerat i rapporten.')) {
+        order.voided = true;
+        order.voidedAt = Date.now();
         save(KEYS.orders, state.orders);
         renderStats();
+        renderShiftBanner();
+        renderShifts();
+        toast('✓ Köpet är makulerat');
       }
     } else if (t.dataset.action === 'export-csv') {
       exportCSV();
     } else if (t.dataset.action === 'clear-history') {
-      if (confirm('Rensa hela försäljningshistoriken? Detta går inte att ångra.\n\nTips: exportera CSV först.')) {
+      if (confirm('Rensa hela försäljningshistoriken och alla pass? Detta går inte att ångra.\n\nTips: exportera säkerhetskopia eller CSV först.')) {
         state.orders = [];
+        state.shifts = [];
         save(KEYS.orders, state.orders);
+        save(KEYS.shifts, state.shifts);
         renderStats();
+        renderShifts();
+        renderShiftBanner();
         toast('Historiken är rensad');
       }
     }
@@ -1451,11 +2314,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       formErr.hidden = false;
       return;
     }
-    state.settings = {
-      swish: num,
-      title: $('titleInput').value.trim() || BRAND,
-      message: $('messageInput').value.trim() || 'Kiosk'
-    };
+    state.settings.swish = num;
+    state.settings.title = $('titleInput').value.trim() || BRAND;
+    state.settings.message = $('messageInput').value.trim() || 'Kiosk';
+    state.settings.keepAwake = $('keepAwakeInput').checked;
     save(KEYS.settings, state.settings);
     closeSettings();
     toast('Inställningarna är sparade');
@@ -1575,10 +2437,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     }
 
     pendingImport = data;
+    const incomingSwish = normalizeSwish(data.s.swish);
     $('importTitle').textContent = data.s.title || BRAND;
-    $('importSwish').textContent = formatSwish(data.s.swish);
+    $('importSwish').textContent = formatSwish(incomingSwish);
     $('importMsg').textContent = data.s.message || 'Kiosk';
     $('importItemCount').textContent = data.m.length;
+
+    const warnEl = $('importSwishChangeWarn');
+    if (warnEl) {
+      if (state.settings && state.settings.swish && normalizeSwish(state.settings.swish) !== incomingSwish) {
+        warnEl.hidden = false;
+        warnEl.innerHTML = '⚠️ <strong>Observera:</strong> Delningslänken har Swish-nummer <code>' +
+          esc(formatSwish(incomingSwish)) + '</code> vilket skiljer sig från ditt nuvarande (<code>' +
+          esc(formatSwish(state.settings.swish)) + '</code>).';
+      } else {
+        warnEl.hidden = true;
+      }
+    }
 
     $('importItemList').innerHTML = data.m.map((it) =>
       '<li><span>' + esc(it.name) + '</span><strong>' + kr(it.price) + '</strong></li>'
@@ -1593,11 +2468,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('confirmImportBtn').addEventListener('click', () => {
     if (!pendingImport) return;
     const s = pendingImport.s;
-    state.settings = {
+    state.settings = Object.assign({}, state.settings || {}, {
       swish: normalizeSwish(s.swish),
       title: s.title || BRAND,
       message: s.message || 'Kiosk'
-    };
+    });
     save(KEYS.settings, state.settings);
 
     state.menu = pendingImport.m.map((it) => ({
@@ -1644,7 +2519,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   /* ================= Tangentbord ================= */
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (!$('importDialog').hidden) closeImportDialog();
+    if (!$('setPinDialog').hidden) closeSetPinDialog();
+    else if (!$('pinPromptDialog').hidden) closePinPromptDialog();
+    else if (!$('customAmountDialog').hidden) closeCustomAmountDialog();
+    else if (!$('reportDialog').hidden) closeReportDialog();
+    else if (!$('endShiftDialog').hidden) closeEndShiftDialog();
+    else if (!$('startShiftDialog').hidden) closeStartShiftDialog();
+    else if (!$('importDialog').hidden) closeImportDialog();
     else if (!$('shareDialog').hidden) closeShareDialog();
     else if (!$('payView').hidden) closePay();
     else if (state.cartOpen) closeCart();

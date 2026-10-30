@@ -11,15 +11,19 @@ Klubbkassan är en mobilanpassad kassa-webbapp på svenska för idrottsförening
 ## Funktioner
 
 - 🛒 **Snabb kassa** – stora varuknappar som fyller skärmen, en tumme räcker. Antal i korgen visas direkt på knappen.
-- ↩️ **Ångra** – felslag ångras med ett tryck i 4 sekunder efter att en vara lagts till.
-- 📱 **Swish-QR** – QR-kod med belopp, mottagare och meddelande förifyllt. Kunden skannar och godkänner.
+- ➕ **Fritt belopp** – ta betalt för valfria belopp (loppis, pant, udda artiklar, donationer) direkt från kassan utan att skapa en menyvara.
+- ↩️ **Ångra & Makulering** – felslag ångras med ett tryck i 4 sekunder. Genomförda köp kan makuleras i efterhand med full spårbarhet.
+- ⏱️ **Kassapass & Dagsavslut (Z-rapport)** – öppna pass med växelkassa, räkna kassa vid stängning, beräkna kassadifferens och dela/skicka kassarapporten direkt via SMS, e-post eller CSV till kassören.
+- 🔒 **PIN-lås** – skydda inställningar, dagsavslut och historik med en 4-siffrig PIN-kod så att obehöriga eller barn inte råkar ändra priser eller nollställa data.
+- 💾 **Säkerhetskopia (JSON)** – exportera och återställ fullständiga säkerhetskopior (inställningar, meny, pass, köp) med en knapptryckning för att skydda mot webbläsarens datarensning.
+- 📱 **Swish-QR** – QR-kod med belopp, mottagare och meddelande förifyllt samt instruktion ("Öppna Swish-appen och välj Skanna").
 - 💵 **Kontant** – snabbknappar för vanliga sedlar och automatisk växelräkning.
 - 📊 **Försäljningsöversikt** – antal köp, total, uppdelat på Swish/kontant och per vara. Export till CSV (öppnas direkt i Excel).
 - 🧾 **Menyhantering** – lägg till, redigera, ta bort och sortera varor. Färdig standardmeny med ett tryck.
-- 📲 **Klona kassa till annan mobil** – dela meny, priser och Swish-nummer direkt via QR-kod eller länk, helt utan servrar eller konton.
+- 📲 **Klona kassa till annan mobil** – dela meny, priser och Swish-nummer direkt via QR-kod eller länk. Varnar om ett annat Swish-nummer redan är aktivt.
 - 📴 **Fungerar offline** – allt, inklusive QR-generering, är inbäddat i filen.
 - 📲 **Installerbar (PWA)** – kan läggas till på hemskärmen när den publiceras på en webbplats.
-- ☀️ **Byggd för utomhusbruk** – högkontrast, stora tryckytor, skärmen hålls tänd under betalning.
+- ☀️ **Byggd för utomhusbruk** – högkontrast, stora tryckytor, och möjlighet att hålla skärmen tänd kontinuerligt (Wake Lock).
 
 ## Kom igång
 
@@ -42,14 +46,17 @@ Lägg upp alla filer i projektet (`index.html`, `manifest.webmanifest`, `sw.js`,
 | Steg | Gör så här |
 |---|---|
 | Lägg till vara | Tryck på varans knapp. Tryck flera gånger för fler. |
+| Valfritt belopp | Tryck **+ Fritt belopp** för loppis, pant, donation m.m. |
 | Felslag | Tryck **Ångra** i raden som dyker upp längst ned. |
 | Ändra/ta bort | Tryck på korgen uppe till höger → använd **+ / −** eller papperskorgen. |
 | Ta betalt | Tryck den gröna knappen **Ta betalt (X kr)**. |
 | Swish | Kunden skannar QR-koden. När betalningen syns i kundens app: **Klar / Ny kund**. |
 | Kontant | Välj fliken **Kontant**, tryck på beloppet kunden ger → växeln visas. **Klar (kontant) / Ny kund**. |
 | Ångrar sig kunden | **Avbryt** – korgen finns kvar. |
+| Kassapass & Z-rapport | Starta pass i kassan eller under Inställningar. Vid stängning räknas kontanter och dagsrapport delas/kopieras. |
+| Makulera köp | Kugghjulet → **Försäljningsstatistik** → tryck **Makulera** på det felaktiga köpet. |
 | Klona till annan mobil | Kugghjulet → **Dela meny till annan mobil** → skanna QR med den andra mobilen. |
-| Inställningar & statistik | Kugghjulet uppe till höger. |
+| Inställningar & PIN | Kugghjulet uppe till höger (skydda gärna med 4-siffrig PIN under Säkerhet). |
 
 ### Swish-nummer & säkerhet
 - **Föreningar/företag:** 123-nummer med 10 siffror, t.ex. `123 456 78 90`. Även `+46 123...` accepteras.
@@ -60,9 +67,10 @@ Lägg upp alla filer i projektet (`index.html`, `manifest.webmanifest`, `sw.js`,
 
 ## Data & integritet
 
-- All data (inställningar, meny, köphistorik och pågående korg) sparas i webbläsarens `localStorage` på enheten.
+- All data (inställningar, meny, köphistorik, kassapass och pågående korg) sparas i webbläsarens `localStorage` på enheten.
 - Ingenting skickas till någon server. Ingen spårning, inga cookies, inga konton.
-- Data är kopplad till **enheten och webbläsaren**. Rensar du webbläsardata försvinner historiken – exportera CSV regelbundet.
+- Data är kopplad till **enheten och webbläsaren**. Rensar du webbläsardata försvinner historiken.
+- **Säkerhetskopia:** Under Inställningar → *Säkerhetskopia* kan du när som helst exportera och återställa en fullständig JSON-fil med all data (inställningar, varor, pass och försäljningshistorik). Exportera gärna en säkerhetskopia efter avslutat evenemang.
 
 ## Filer
 

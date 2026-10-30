@@ -1,6 +1,6 @@
 /* Klubbkassan – service worker: gör appen tillgänglig offline.
    Strategi: svara direkt från cache, uppdatera cachen i bakgrunden (stale-while-revalidate). */
-const CACHE = 'klubbkassan-v5';
+const CACHE = 'klubbkassan-v6';
 const ASSETS = [
   './',
   './index.html',
