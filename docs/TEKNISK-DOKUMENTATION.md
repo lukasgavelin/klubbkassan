@@ -77,6 +77,8 @@ Händelser hanteras med **event delegation** på containerelement (`#catalog`, `
 | Ångra-rad | `#undoBar` | I 4 s efter att en vara lagts till |
 | Inställningar / wizard | `#settingsView` | Kugghjulet (efter ev. PIN-verifiering), eller automatiskt om ej konfigurerad |
 | Betalning | `#payView` | "Ta betalt" |
+| Kioskguide & Hjälp (modal) | `#helpDialog` + `#helpBackdrop` | Tryck på `?`-knappen i kassan |
+| Instruktionsblad A4 (modal)| `#printSheetDialog` + `#printSheetBackdrop` | "Skriv ut instruktionslapp till kiosken" under Meny |
 | Fritt belopp (modal) | `#customAmountDialog` + `#customAmountBackdrop` | "+ Fritt belopp" i kassan |
 | Starta pass (modal) | `#startShiftDialog` + `#startShiftBackdrop` | "Starta pass" i kassan eller under Inställningar |
 | Avsluta pass (modal) | `#endShiftDialog` + `#endShiftBackdrop` | "Avsluta pass / Dagsavslut" |
@@ -383,7 +385,7 @@ Datum;Tid;Order-ID;Pass;Status;Betalsätt;Kontrollkod;Vara;Antal;Styckpris;Summa
 | `DEFAULT_MENU` | Lagring | Kaffe 15, Festis 10, Kaka 10, Toast 25, Korv med bröd 20 |
 | `UNDO_MS` | Ångra | `4000` |
 | Standardmeddelande | `state.settings`, spara | `'Kiosk'` |
-| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v6'` |
+| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v7'` |
 
 ---
 
