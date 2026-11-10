@@ -2,7 +2,7 @@
 
 **Kassan för föreningens kiosk, café och evenemang – betala med Swish eller kontant.**
 
-👉 **Öppna appen: [lukasgavelin.github.io/klubbkassan](https://lukasgavelin.github.io/klubbkassan/)**
+**Öppna appen: [lukasgavelin.github.io/klubbkassan](https://lukasgavelin.github.io/klubbkassan/)**
 
 Klubbkassan är en mobilanpassad kassa-webbapp på svenska för idrottsföreningar, skolklasser, loppisar och andra evenemang. Den består av en enda HTML-fil, kräver ingen server, inget konto och ingen internetanslutning – och den sparar allt lokalt i webbläsaren.
 
@@ -10,22 +10,22 @@ Klubbkassan är en mobilanpassad kassa-webbapp på svenska för idrottsförening
 
 ## Funktioner
 
-- 🛒 **Snabb kassa** – stora varuknappar som fyller skärmen, en tumme räcker. Antal i korgen visas direkt på knappen.
-- 💡 **Kioskguide & Övningsläge (`?`)** – inbyggd 3-stegsguide med möjlighet att göra ett riskfritt låtsasköp innan matchstart så att ovana föräldrar känner sig trygga.
-- ➕ **Fritt belopp** – ta betalt för valfria belopp (loppis, pant, udda artiklar, donationer) direkt från kassan utan att skapa en menyvara.
-- ↩️ **Ångra & Makulering** – felslag ångras med ett tryck i 4 sekunder. Genomförda köp kan makuleras i efterhand med full spårbarhet.
-- ⏱️ **Kassapass & Dagsavslut (Z-rapport)** – öppna pass med växelkassa (valfritt), räkna kassa vid stängning, beräkna kassadifferens och dela kassarapporten direkt via SMS/e-post till kassören.
-- 🔒 **PIN-lås** – skydda inställningar, dagsavslut och historik med en 4-siffrig PIN-kod så att obehöriga eller barn inte råkar ändra priser eller nollställa data.
-- 💾 **Säkerhetskopia (JSON)** – exportera och återställ fullständiga säkerhetskopior (inställningar, meny, pass, köp) med en knapptryckning för att skydda mot webbläsarens datarensning.
-- 📱 **Swish-QR med säljarguide** – QR-kod med belopp, mottagare, meddelande och unik kontrollkod. Tydliga instruktioner för både kund och säljare ("Titta på kundens mobil att betalningen är klar").
-- 💵 **Kontant** – snabbknappar för vanliga sedlar och automatisk växelräkning.
-- 📊 **Försäljningsöversikt** – antal köp, total, uppdelat på Swish/kontant och per vara. Export till CSV (öppnas direkt i Excel).
-- 🧾 **Menyhantering** – lägg till, redigera, ta bort och sortera varor. Färdig standardmeny med ett tryck.
-- 📲 **Klona kassa till annan mobil** – dela meny, priser och Swish-nummer direkt via QR-kod eller länk.
-- 🖨️ **Utskriftsvänligt instruktionsblad (A4)** – skriv ut en färdig kiosk-lapp med QR-kod och 3 enkla regler att tejpa upp vid kaffebryggaren.
-- 📴 **Fungerar offline** – allt, inklusive QR-generering, är inbäddat i filen.
-- 📲 **Installerbar (PWA)** – kan läggas till på hemskärmen när den publiceras på en webbplats.
-- ☀️ **Byggd för utomhusbruk** – högkontrast, stora tryckytor, och möjlighet att hålla skärmen tänd kontinuerligt (Wake Lock).
+- **Snabb kassa** – stora varuknappar som fyller skärmen, en tumme räcker. Antal i korgen visas direkt på knappen.
+- **Kioskguide & Övningsläge (`?`)** – inbyggd 3-stegsguide med möjlighet att göra ett riskfritt låtsasköp innan matchstart så att ovana föräldrar känner sig trygga.
+- **Fritt belopp** – ta betalt för valfria belopp (loppis, pant, udda artiklar, donationer) direkt från kassan utan att skapa en menyvara.
+- **Ångra & Makulering** – felslag ångras med ett tryck i 4 sekunder. Genomförda köp kan makuleras i efterhand med full spårbarhet.
+- **Kassapass & Dagsavslut (Z-rapport)** – öppna pass med växelkassa (valfritt), räkna kassa vid stängning, beräkna kassadifferens och dela kassarapporten direkt via SMS/e-post till kassören.
+- **PIN-lås** – skydda inställningar, dagsavslut och historik med en 4-siffrig PIN-kod så att obehöriga eller barn inte råkar ändra priser eller nollställa data.
+- **Säkerhetskopia (JSON)** – exportera och återställ fullständiga säkerhetskopior (inställningar, meny, pass, köp) med en knapptryckning för att skydda mot webbläsarens datarensning.
+- **Swish-QR med säljarguide** – QR-kod med belopp, mottagare, meddelande och unik kontrollkod. Tydliga instruktioner för både kund och säljare ("Titta på kundens mobil att betalningen är klar").
+- **Kontant** – snabbknappar för vanliga sedlar och automatisk växelräkning.
+- **Försäljningsöversikt** – antal köp, total, uppdelat på Swish/kontant och per vara. Export till CSV (öppnas direkt i Excel).
+- **Menyhantering** – lägg till, redigera, ta bort och sortera varor. Färdig standardmeny med ett tryck.
+- **Klona kassa till annan mobil** – dela meny, priser och Swish-nummer direkt via QR-kod eller länk.
+- **Utskriftsvänligt instruktionsblad (A4)** – skriv ut en färdig kiosk-lapp med QR-kod och 3 enkla regler att tejpa upp vid kaffebryggaren.
+- **Fungerar offline** – allt, inklusive QR-generering, är inbäddat i filen.
+- **Installerbar (PWA)** – kan läggas till på hemskärmen när den publiceras på en webbplats.
+- **Byggd för utomhusbruk** – högkontrast, stora tryckytor, och möjlighet att hålla skärmen tänd kontinuerligt (Wake Lock).
 
 ## Kom igång
 
