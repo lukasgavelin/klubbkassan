@@ -431,6 +431,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     box-shadow: 0 16px 40px rgba(0, 0, 0, .35);
     animation: fadeIn .15s ease;
   }
+  #pinPromptBackdrop { z-index: 76; }
+  #pinPromptDialog { z-index: 77; }
   .dialog-head {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 8px;
@@ -1037,6 +1039,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     menu: 'klubbkassan.menu',
     orders: 'klubbkassan.orders',
     cart: 'klubbkassan.cart',
+    customItems: 'klubbkassan.customItems',
     shifts: 'klubbkassan.shifts'
   };
   const BRAND = 'Klubbkassan';
@@ -1082,7 +1085,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     orders: Array.isArray(load(KEYS.orders, [])) ? load(KEYS.orders, []) : [],
     shifts: Array.isArray(load(KEYS.shifts, [])) ? load(KEYS.shifts, []) : [],
     cart: (load(KEYS.cart, {}) && typeof load(KEYS.cart, {}) === 'object') ? load(KEYS.cart, {}) : {},
-    customItems: {},
+    customItems: (load(KEYS.customItems, {}) && typeof load(KEYS.customItems, {}) === 'object') ? load(KEYS.customItems, {}) : {},
     isTestMode: false,
     editingId: null,
     cartOpen: false
@@ -1169,13 +1172,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   function cartTotal() { return cartLines().reduce((a, l) => a + l.sum, 0); }
   function cartCount() { return cartLines().reduce((a, l) => a + l.qty, 0); }
   function reconcileCart() {
+    if (!state.isTestMode && state.customItems && state.customItems['test_demo']) {
+      delete state.customItems['test_demo'];
+      delete state.cart['test_demo'];
+    }
     Object.keys(state.cart).forEach((id) => {
       if (!itemById(id) || !(state.cart[id] > 0)) {
         delete state.cart[id];
         if (state.customItems && state.customItems[id]) delete state.customItems[id];
       }
     });
+    if (state.customItems) {
+      Object.keys(state.customItems).forEach((id) => {
+        if (!(state.cart[id] > 0)) delete state.customItems[id];
+      });
+    }
     save(KEYS.cart, state.cart);
+    save(KEYS.customItems, state.customItems);
   }
   function lockScroll() {
     const locked = !$('settingsView').hidden ||
@@ -1188,7 +1201,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       !$('reportDialog').hidden ||
       !$('customAmountDialog').hidden ||
       !$('pinPromptDialog').hidden ||
-      !$('setPinDialog').hidden;
+      !$('setPinDialog').hidden ||
+      !$('helpDialog').hidden ||
+      !$('printSheetDialog').hidden;
     document.body.classList.toggle('locked', locked);
   }
 
@@ -1263,11 +1278,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     return state.shifts.find((s) => !s.closedAt);
   }
 
+  let preTestCart = null;
+  let preTestCustomItems = null;
+
   function exitTestMode(success) {
     state.isTestMode = false;
     delete state.customItems['test_demo'];
-    state.cart = {};
+    state.cart = preTestCart || {};
+    state.customItems = preTestCustomItems || {};
+    preTestCart = null;
+    preTestCustomItems = null;
     save(KEYS.cart, state.cart);
+    save(KEYS.customItems, state.customItems);
     closePay();
     renderPOS();
     renderShiftBanner();
@@ -1281,10 +1303,15 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
   function startTestOrder() {
     closeHelpDialog();
+    if (!state.isTestMode) {
+      preTestCart = Object.assign({}, state.cart);
+      preTestCustomItems = Object.assign({}, state.customItems);
+    }
     state.isTestMode = true;
-    state.customItems['test_demo'] = { id: 'test_demo', name: 'Kaffe (Övning)', price: 15 };
+    state.customItems = { 'test_demo': { id: 'test_demo', name: 'Kaffe (Övning)', price: 15 } };
     state.cart = { 'test_demo': 1 };
     save(KEYS.cart, state.cart);
+    save(KEYS.customItems, state.customItems);
     renderPOS();
     renderShiftBanner();
     vibrate(15);
@@ -1319,8 +1346,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('shiftBanner').addEventListener('click', (e) => {
     const t = e.target.closest('button');
     if (!t) return;
-    if (t.dataset.action === 'start-shift') openStartShiftDialog();
-    else if (t.dataset.action === 'close-shift') openEndShiftDialog();
+    if (t.dataset.action === 'start-shift') requirePin(() => openStartShiftDialog());
+    else if (t.dataset.action === 'close-shift') requirePin(() => openEndShiftDialog());
     else if (t.dataset.action === 'exit-test') exitTestMode(false);
   });
 
@@ -1333,6 +1360,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       state.cart[id] = q;
     }
     save(KEYS.cart, state.cart);
+    save(KEYS.customItems, state.customItems);
     renderCatalog();
     renderCart();
   }
@@ -1390,6 +1418,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   });
   document.querySelectorAll('[data-action="close-custom-amount"]').forEach((b) => b.addEventListener('click', closeCustomAmountDialog));
   $('customAmountBackdrop').addEventListener('click', closeCustomAmountDialog);
+  ['customPriceInput', 'customNameInput'].forEach((id) => {
+    $(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); $('confirmCustomAmountBtn').click(); }
+    });
+  });
 
   /* ---- Ångra senaste tryck ---- */
   const UNDO_MS = 4000;
@@ -1455,6 +1488,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       delete state.cart[t.dataset.del];
       if (state.customItems && state.customItems[t.dataset.del]) delete state.customItems[t.dataset.del];
       save(KEYS.cart, state.cart);
+      save(KEYS.customItems, state.customItems);
       renderCatalog();
       renderCart();
       vibrate(15);
@@ -1463,6 +1497,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       state.cart = {};
       state.customItems = {};
       save(KEYS.cart, state.cart);
+      save(KEYS.customItems, state.customItems);
       renderCatalog();
       renderCart();
       vibrate(20);
@@ -1475,6 +1510,14 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
   /* ================= PIN-lås ================= */
   let pinSuccessCallback = null;
+
+  function requirePin(callback) {
+    if (state.settings.pin) {
+      openPinPromptDialog(callback);
+    } else {
+      callback();
+    }
+  }
 
   function openPinPromptDialog(callback) {
     pinSuccessCallback = callback;
@@ -1503,6 +1546,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       $('pinPromptInput').focus();
       vibrate([20, 50, 20]);
     }
+  });
+  $('pinPromptInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); $('confirmPinPromptBtn').click(); }
   });
   document.querySelectorAll('[data-action="close-pin-prompt"]').forEach((b) => b.addEventListener('click', closePinPromptDialog));
   $('pinPromptBackdrop').addEventListener('click', closePinPromptDialog);
@@ -1533,6 +1579,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     renderSecurity();
     toast('✓ PIN-kod är sparad');
   });
+  $('newPinInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); $('confirmSetPinBtn').click(); }
+  });
   document.querySelectorAll('[data-action="close-set-pin"]').forEach((b) => b.addEventListener('click', closeSetPinDialog));
   $('setPinBackdrop').addEventListener('click', closeSetPinDialog);
 
@@ -1541,7 +1590,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     if (!body) return;
     if (state.settings.pin) {
       body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
-        '<span style="font-size:1.6rem">🔒</span><div><strong>PIN-lås är aktivt</strong><div style="font-size:.85rem;color:var(--muted)">Inställningar kräver 4-siffrig PIN.</div></div>' +
+        '<span style="font-size:1.6rem">🔒</span><div><strong>PIN-lås är aktivt</strong><div style="font-size:.85rem;color:var(--muted)">Inställningar, dagsavslut och menyimport kräver 4-siffrig PIN.</div></div>' +
         '</div>' +
         '<div class="row-actions">' +
         '<button type="button" class="btn btn-secondary" data-action="change-pin">Ändra PIN</button>' +
@@ -1569,11 +1618,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   });
 
   $('gearBtn').addEventListener('click', () => {
-    if (state.settings.pin) {
-      openPinPromptDialog(() => openSettings());
-    } else {
-      openSettings();
-    }
+    requirePin(() => openSettings());
   });
 
   /* ================= Betalning ================= */
@@ -1773,7 +1818,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       if (!save(KEYS.orders, state.orders)) saveOk = false;
     }
     state.cart = {};
+    state.customItems = {};
     save(KEYS.cart, state.cart);
+    save(KEYS.customItems, state.customItems);
     hideUndo();
     closePay();
     renderPOS();
@@ -1830,6 +1877,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   });
   document.querySelectorAll('[data-action="close-start-shift"]').forEach((b) => b.addEventListener('click', closeStartShiftDialog));
   $('startShiftBackdrop').addEventListener('click', closeStartShiftDialog);
+  ['shiftStartFloat', 'shiftStartNote'].forEach((id) => {
+    $(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); $('confirmStartShiftBtn').click(); }
+    });
+  });
 
   let currentEndingShift = null;
 
@@ -1932,6 +1984,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   });
   document.querySelectorAll('[data-action="close-end-shift"]').forEach((b) => b.addEventListener('click', closeEndShiftDialog));
   $('endShiftBackdrop').addEventListener('click', closeEndShiftDialog);
+  ['shiftCountedCash', 'shiftEndNote'].forEach((id) => {
+    $(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); $('confirmEndShiftBtn').click(); }
+    });
+  });
 
   /* ---- Kassarapport dialog ---- */
   let currentViewingShift = null;
@@ -2135,6 +2192,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         save(KEYS.shifts, state.shifts);
         save(KEYS.orders, state.orders);
         save(KEYS.cart, state.cart);
+        save(KEYS.customItems, state.customItems);
 
         renderPOS();
         renderShiftBanner();
@@ -2666,29 +2724,34 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('shareMenuBtn').addEventListener('click', openShareDialog);
   $('confirmImportBtn').addEventListener('click', () => {
     if (!pendingImport) return;
-    const s = pendingImport.s;
-    state.settings = Object.assign({}, state.settings || {}, {
-      swish: normalizeSwish(s.swish),
-      title: s.title || BRAND,
-      message: s.message || 'Kiosk'
+    requirePin(() => {
+      if (!pendingImport) return;
+      const s = pendingImport.s;
+      state.settings = Object.assign({}, state.settings || {}, {
+        swish: normalizeSwish(s.swish),
+        title: s.title || BRAND,
+        message: s.message || 'Kiosk'
+      });
+      save(KEYS.settings, state.settings);
+
+      state.menu = pendingImport.m.map((it) => ({
+        id: uid(),
+        name: String(it.name).slice(0, 30),
+        price: parsePrice(it.price) ?? 0
+      }));
+      persistMenu();
+
+      state.cart = {};
+      state.customItems = {};
+      save(KEYS.cart, state.cart);
+      save(KEYS.customItems, state.customItems);
+
+      closeImportDialog();
+      if (!$('settingsView').hidden) closeSettings();
+      renderPOS();
+      vibrate([15, 30, 15]);
+      toast('✓ Kassan är inläst och redo att användas!');
     });
-    save(KEYS.settings, state.settings);
-
-    state.menu = pendingImport.m.map((it) => ({
-      id: uid(),
-      name: String(it.name).slice(0, 30),
-      price: parsePrice(it.price) ?? 0
-    }));
-    persistMenu();
-
-    state.cart = {};
-    save(KEYS.cart, state.cart);
-
-    closeImportDialog();
-    if (!$('settingsView').hidden) closeSettings();
-    renderPOS();
-    vibrate([15, 30, 15]);
-    toast('✓ Kassan är inläst och redo att användas!');
   });
 
   $('cancelImportBtn').addEventListener('click', closeImportDialog);
@@ -2732,14 +2795,24 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   $('startTestOrderBtn').addEventListener('click', startTestOrder);
 
   function openPrintSheetDialog() {
-    const s = state.settings;
-    if (!s.swish || !state.menu.length) {
-      toast('Ställ in Swish-nummer och minst en menyvara först');
+    if (!state.menu.length) {
+      toast('Lägg till minst en menyvara först');
       return;
     }
+    const num = normalizeSwish($('swishInput').value || state.settings.swish);
+    const err = swishError(num);
+    if (err) {
+      toast('Ange ett giltigt Swish-nummer först');
+      return;
+    }
+    const s = {
+      swish: num,
+      title: $('titleInput').value.trim() || state.settings.title || BRAND,
+      message: $('messageInput').value.trim() || state.settings.message || 'Kiosk'
+    };
     const payload = {
       v: 1,
-      s: { swish: s.swish, title: s.title || BRAND, message: s.message || 'Kiosk' },
+      s: s,
       m: state.menu.map((it) => ({ name: it.name, price: it.price }))
     };
     const enc = encodeSetup(payload);
@@ -2800,6 +2873,14 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const previewContent = $('printSheetPreview').innerHTML;
     const printArea = $('printArea');
     printArea.innerHTML = previewContent;
+    const srcCanvas = $('printSheetQr') && $('printSheetQr').querySelector('canvas');
+    const dstQr = printArea.querySelector('#printSheetQr');
+    if (srcCanvas && dstQr) {
+      try {
+        const dataUrl = srcCanvas.toDataURL('image/png');
+        dstQr.innerHTML = '<img src="' + dataUrl + '" alt="QR-kod" style="display:block;width:130px;height:130px;">';
+      } catch (e) {}
+    }
     printArea.hidden = false;
     window.print();
     setTimeout(() => { printArea.hidden = true; printArea.innerHTML = ''; }, 1000);

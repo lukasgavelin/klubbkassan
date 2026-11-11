@@ -103,6 +103,7 @@ Alla nycklar har prefixet `klubbkassan.` och lagras som JSON.
 | `klubbkassan.orders` | `Order[]` | Genomförda köp (äldst först) |
 | `klubbkassan.shifts` | `Shift[]` | Kassapass och dagsavslut (äldst först) |
 | `klubbkassan.cart` | `Record<itemId, number>` | Pågående korg (överlever omladdning) |
+| `klubbkassan.customItems` | `Record<itemId, MenuItem>` | Pågående fria belopp i korgen (överlever omladdning) |
 
 ```ts
 interface Settings {
@@ -135,19 +136,21 @@ interface Order {
 interface Shift {
   id: string;                        // uid()
   openedAt: number;                  // Date.now() vid passets start
-  closedAt?: number;                 // Date.now() vid dagsavslut (undefined för aktivt pass)
-  startCash: number;                 // växelkassa vid start (kr)
+  closedAt: number | null;           // Date.now() vid dagsavslut (null för aktivt pass)
+  startFloat: number;                // växelkassa vid start (kr)
+  note?: string;                     // frivilligt passnamn / kommentar
   countedCash?: number;              // räknad kontantkassa vid stängning
   swishTotal?: number;               // beräknad summa Swish vid avslut
   cashTotal?: number;                // beräknad summa Kontant vid avslut
-  expectedCash?: number;             // förväntad kontantkassa (startCash + cashTotal)
-  diffCash?: number;                 // kassadifferens (countedCash - expectedCash)
+  totalSales?: number;               // total försäljning vid avslut (swishTotal + cashTotal)
+  expectedCash?: number;             // förväntad kontantkassa (startFloat + cashTotal)
+  diff?: number;                     // kassadifferens (countedCash - expectedCash)
 }
 ```
 
 **Designval:**
 - Korgen refererar till `MenuItem.id`, så prisändringar slår igenom direkt. `reconcileCart()` tar bort rader vars vara raderats.
-- För fritt belopp skapas tillfälliga artiklar med prefix `custom_` i `state.customItems` under pågående varukorgstillfälle så att `state.menu` förblir ren.
+- För fritt belopp skapas tillfälliga artiklar med prefix `c_` i `state.customItems` (`klubbkassan.customItems`) under pågående varukorgstillfälle så att `state.menu` förblir ren men korgen ändå överlever sidomladdning.
 - `Order.items` är en *kopia* av namn och pris vid köptillfället, så historiken påverkas inte av senare menyändringar.
 - Makulering av köp sätter flaggan `voided: true` på ordern istället för att radera den, vilket garanterar revisionsspårbarhet och korrekta kassarapporter.
 - Säkerhetskopiering exporterar hela systemets tillstånd (`settings`, `menu`, `orders`, `shifts`) som en strukturerad JSON-fil (`klubbkassan-backup-YYYY-MM-DD.json`).
@@ -283,7 +286,7 @@ Vid start (endast om `location.protocol` är `http:`/`https:`):
 3. `beforeinstallprompt` fångas → knappen **Installera på hemskärmen** visas i Inställningar.
 
 **`sw.js`**
-- Cache-namn: `klubbkassan-v5`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
+- Cache-namn: `klubbkassan-v8`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
 - Förcachar: `./`, `./index.html`, `./manifest.webmanifest`, `./icon.svg`, `./apple-touch-icon.png`, `./icon-192.png`, `./icon-512.png`.
 - Strategi: *stale-while-revalidate* för GET-anrop till samma origin. Navigeringar faller tillbaka till `index.html`.
 - `skipWaiting()` + `clients.claim()` → ny version aktiveras direkt; användaren ser den vid nästa omladdning.
@@ -301,7 +304,7 @@ Beräknas vid varje öppning av Inställningar från `state.orders`:
 - Antal köp, total, Swish-total/antal, kontant-total/antal (endast giltiga köp räknas).
 - Antal makulerade köp och makulerad summa redovisas separat.
 - Per vara (grupperat på **namn**): antal och summa, sorterat på summa fallande.
-- De 10 senaste köpen med möjlighet att makulera köp (makulering drar bort beloppet men sparar köpet som makulerat för revisionsspårbarhet).
+- De 15 senaste köpen med möjlighet att makulera köp (makulering drar bort beloppet men sparar köpet som makulerat för revisionsspårbarhet).
 
 ### CSV-export
 - Avgränsare `;`, radslut `\r\n`, UTF-8 med BOM (för korrekt å/ä/ö i svensk Excel).
@@ -344,7 +347,7 @@ Datum;Tid;Order-ID;Pass;Status;Betalsätt;Kontrollkod;Vara;Antal;Styckpris;Summa
 ### Tillgänglighet & tangentbord
 - `aria-label` på ikonknappar, `aria-expanded` på korgknappen, `role="dialog"`/`aria-modal` på betalningsvyn och dialoger, `role="tablist"`/`aria-selected` på betalsättsflikarna, `aria-live` på ångra-raden.
 - Synlig fokusmarkering (`:focus-visible`, gul ram).
-- **Escape** stänger i prioriteringsordning: PIN-dialoger → Fritt belopp → Kassarapport → Avsluta pass → Starta pass → Inläsningsdialog → Dela-dialog → Betalningsvy → Korg → Inställningar (om konfigurerad och ingen vara redigeras).
+- **Escape** stänger i prioriteringsordning: Kioskguide → Instruktionsblad A4 → PIN-dialoger → Fritt belopp → Kassarapport → Avsluta pass → Starta pass → Inläsningsdialog → Dela-dialog → Betalningsvy → Korg → Inställningar (om konfigurerad och ingen vara redigeras).
 
 ### Varumärke
 - Namn: **Klubbkassan**. Slogan: *Kassan för föreningens kiosk, café och evenemang*.
@@ -385,7 +388,7 @@ Datum;Tid;Order-ID;Pass;Status;Betalsätt;Kontrollkod;Vara;Antal;Styckpris;Summa
 | `DEFAULT_MENU` | Lagring | Kaffe 15, Festis 10, Kaka 10, Toast 25, Korv med bröd 20 |
 | `UNDO_MS` | Ångra | `4000` |
 | Standardmeddelande | `state.settings`, spara | `'Kiosk'` |
-| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v7'` |
+| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v8'` |
 
 ---
 
@@ -408,7 +411,7 @@ Egen driftsättning:
 
 1. Ladda upp alla filer till samma katalog på en statisk webbserver med HTTPS (GitHub Pages, Netlify, Cloudflare Pages m.fl.).
 2. Inga serverinställningar krävs. `manifest.webmanifest` bör helst serveras som `application/manifest+json` (de flesta värdar gör det automatiskt).
-3. Vid uppdatering: ändra `CACHE` i `sw.js` (t.ex. `klubbkassan-v7`) så att klienter hämtar nya filer.
+3. Vid uppdatering: ändra `CACHE` i `sw.js` (t.ex. `klubbkassan-v8`) så att klienter hämtar nya filer.
 
 ### Uppdatera qrcodejs
 Biblioteket ligger i första `<script>`-blocket i `index.html` med en kommentar om källa och licens. Ersätt innehållet med ny minifierad version. Kontrollera att koden inte innehåller strängen `</script`.
