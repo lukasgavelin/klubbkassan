@@ -112,12 +112,15 @@ interface Settings {
   message: string;       // betalningsmeddelande, default "Kiosk"
   pin?: string;          // valfri 4-siffrig PIN-kod för att låsa inställningar/dagsavslut
   keepAwake?: boolean;   // håll skärmen tänd kontinuerligt (Screen Wake Lock API)
+  allowCash?: boolean;   // tillåt kontantbetalning (default true; false = kontantfri Swish-kassa)
+  allowCustom?: boolean; // visa "+ Fritt belopp" i kassan (default true)
 }
 
 interface MenuItem {
   id: string;        // uid(): base36-tid + slump
   name: string;      // max 30 tecken
   price: number;     // heltal kronor, 0–100 000 (0 kr för gratisartiklar/domarfika)
+  soldOut?: boolean; // true om varan är tillfälligt slut i lager
 }
 
 interface Order {
@@ -286,7 +289,7 @@ Vid start (endast om `location.protocol` är `http:`/`https:`):
 3. `beforeinstallprompt` fångas → knappen **Installera på hemskärmen** visas i Inställningar.
 
 **`sw.js`**
-- Cache-namn: `klubbkassan-v8`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
+- Cache-namn: `klubbkassan-v9`. **Höj versionen** vid ändring av cachade filer så att gamla cacher rensas i `activate`.
 - Förcachar: `./`, `./index.html`, `./manifest.webmanifest`, `./icon.svg`, `./apple-touch-icon.png`, `./icon-192.png`, `./icon-512.png`.
 - Strategi: *stale-while-revalidate* för GET-anrop till samma origin. Navigeringar faller tillbaka till `index.html`.
 - `skipWaiting()` + `clients.claim()` → ny version aktiveras direkt; användaren ser den vid nästa omladdning.
@@ -388,7 +391,7 @@ Datum;Tid;Order-ID;Pass;Status;Betalsätt;Kontrollkod;Vara;Antal;Styckpris;Summa
 | `DEFAULT_MENU` | Lagring | Kaffe 15, Festis 10, Kaka 10, Toast 25, Korv med bröd 20 |
 | `UNDO_MS` | Ångra | `4000` |
 | Standardmeddelande | `state.settings`, spara | `'Kiosk'` |
-| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v8'` |
+| Cache-version | `sw.js` → `CACHE` | `'klubbkassan-v9'` |
 
 ---
 
@@ -411,7 +414,7 @@ Egen driftsättning:
 
 1. Ladda upp alla filer till samma katalog på en statisk webbserver med HTTPS (GitHub Pages, Netlify, Cloudflare Pages m.fl.).
 2. Inga serverinställningar krävs. `manifest.webmanifest` bör helst serveras som `application/manifest+json` (de flesta värdar gör det automatiskt).
-3. Vid uppdatering: ändra `CACHE` i `sw.js` (t.ex. `klubbkassan-v8`) så att klienter hämtar nya filer.
+3. Vid uppdatering: ändra `CACHE` i `sw.js` (t.ex. `klubbkassan-v9`) så att klienter hämtar nya filer.
 
 ### Uppdatera qrcodejs
 Biblioteket ligger i första `<script>`-blocket i `index.html` med en kommentar om källa och licens. Ersätt innehållet med ny minifierad version. Kontrollera att koden inte innehåller strängen `</script`.

@@ -18,9 +18,9 @@ Klubbkassan är en mobilanpassad kassa-webbapp på svenska för idrottsförening
 - **PIN-lås** – skydda inställningar, dagsavslut och historik med en 4-siffrig PIN-kod så att obehöriga eller barn inte råkar ändra priser eller nollställa data.
 - **Säkerhetskopia (JSON)** – exportera och återställ fullständiga säkerhetskopior (inställningar, meny, pass, köp) med en knapptryckning för att skydda mot webbläsarens datarensning.
 - **Swish-QR med säljarguide** – QR-kod med belopp, mottagare, meddelande och unik kontrollkod. Tydliga instruktioner för både kund och säljare ("Titta på kundens mobil att betalningen är klar").
-- **Kontant** – snabbknappar för vanliga sedlar och automatisk växelräkning.
+- **Kontant eller kontantfri** – snabbknappar för vanliga sedlar och automatisk växelräkning, eller stäng av kontantvalet helt för en renodlad Swish-kassa.
 - **Försäljningsöversikt** – antal köp, total, uppdelat på Swish/kontant och per vara. Export till CSV (öppnas direkt i Excel).
-- **Menyhantering** – lägg till, redigera, ta bort och sortera varor. Färdig standardmeny med ett tryck.
+- **Menyhantering & Slut-markering** – lägg till, redigera, ta bort, sortera och markera varor som tillfälligt slut i lager. Färdig standardmeny med ett tryck.
 - **Klona kassa till annan mobil** – dela meny, priser och Swish-nummer direkt via QR-kod eller länk.
 - **Utskriftsvänligt instruktionsblad (A4)** – skriv ut en färdig kiosk-lapp med QR-kod och 3 enkla regler att tejpa upp vid kaffebryggaren.
 - **Fungerar offline** – allt, inklusive QR-generering, är inbäddat i filen.

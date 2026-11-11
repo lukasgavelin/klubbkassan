@@ -200,6 +200,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   }
   .tile.flash { animation: flash .3s ease; }
   @keyframes flash { 0% { background: var(--green); } 100% { } }
+  .tile.sold-out {
+    background: #232529; color: #9aa0a6;
+    box-shadow: none; opacity: .78;
+  }
+  .tile.sold-out:active { transform: none; }
+  .tile.sold-out .tile-price { color: #9aa0a6; text-decoration: line-through; }
+  .tile-soldout-badge {
+    position: absolute; top: 10px; right: 10px;
+    padding: 3px 8px; border-radius: 999px;
+    background: #fde8e8; color: var(--red); font-weight: 800; font-size: .78rem;
+    text-transform: uppercase; letter-spacing: .3px;
+  }
   .catalog-empty {
     grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--muted);
   }
@@ -283,6 +295,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .menu-row .mini:disabled { opacity: .35; }
   .menu-row .mini.del { background: #fde8e8; color: var(--red); }
   .menu-row .mini.ok { background: var(--green); color: #fff; }
+  .menu-row .mini.stock { width: auto; flex: 0 0 auto; padding: 0 10px; font-size: .82rem; font-weight: 800; }
+  .menu-row .mini.stock.out { background: #fde8e8; color: var(--red); }
+  .menu-row.is-soldout .m-name, .menu-row.is-soldout .m-price { color: var(--muted); text-decoration: line-through; }
   .menu-row .mini svg { width: 20px; height: 20px; }
   .menu-row.editing { flex-wrap: wrap; }
   .menu-row.editing input { min-height: 46px; }
@@ -467,6 +482,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   .dialog-warn {
     color: var(--muted); font-size: .85rem; margin: 8px 0 14px; text-align: center;
   }
+  .local-note {
+    background: #f0fdf4; border: 1.5px solid #bbf7d0; color: #166534;
+    border-radius: 12px; padding: 10px 12px; font-size: .88rem; line-height: 1.35;
+    margin: 10px 0 14px;
+  }
 
   /* ---------- Kassapass & banner ---------- */
   .shift-banner {
@@ -633,103 +653,127 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     </button>
   </div>
   <div class="settings-inner">
-    <div id="welcome" class="welcome" hidden>
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><path d="M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z" fill="#08873a"/><path d="M256 84 400 134v118c0 92-62 158-144 188Z" fill="#066a2d"/><path d="M190 262l46 46 90-100" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div>
-          <div class="brand-name">Klubbkassan</div>
-          <div class="brand-tagline">Kassan för föreningens kiosk, café och evenemang</div>
+    <div id="settingsTabs" class="pay-tabs" role="tablist" aria-label="Avdelningar" style="margin:0 0 16px">
+      <button id="stabSales" type="button" class="pay-tab active" role="tab" aria-selected="true" data-stab="sales">📊 Försäljning &amp; Pass</button>
+      <button id="stabConfig" type="button" class="pay-tab" role="tab" aria-selected="false" data-stab="config">⚙️ Kassa &amp; Meny</button>
+    </div>
+
+    <div id="settingsPanelSales">
+      <div class="card" id="shiftsCard">
+        <h3>Kassapass &amp; dagsavslut</h3>
+        <div id="shiftsBody"></div>
+      </div>
+
+      <div class="card" id="statsCard">
+        <h3>Försäljning &amp; kvitton</h3>
+        <div id="statsBody"></div>
+      </div>
+
+      <button type="button" id="salesCloseBtn" class="btn btn-green btn-lg btn-block">Tillbaka till kassan</button>
+    </div>
+
+    <div id="settingsPanelConfig">
+      <div id="welcome" class="welcome" hidden>
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><path d="M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z" fill="#08873a"/><path d="M256 84 400 134v118c0 92-62 158-144 188Z" fill="#066a2d"/><path d="M190 262l46 46 90-100" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div>
+            <div class="brand-name">Klubbkassan</div>
+            <div class="brand-tagline">Kassan för föreningens kiosk, café och evenemang</div>
+          </div>
+        </div>
+        <h3>Välkommen! 👋</h3>
+        <p>Fyll i föreningens Swish-nummer, ge kassan ett namn och lägg upp det ni säljer. Sedan kan du ta betalt med Swish eller kontant.</p>
+        <div style="background:#e3f6ea;border:1.5px solid #a7f3d0;padding:12px 14px;border-radius:12px;margin:12px 0;">
+          <strong style="color:var(--green-dark)">💡 Supersnabb start:</strong>
+          <p style="margin:4px 0 8px;font-size:.9rem;color:var(--text)">Vill du komma igång direkt med vanliga kioskvaror (Kaffe, Festis, Kaka, Toast, Korv)?</p>
+          <button type="button" id="quickStartBtn" class="btn btn-green btn-block">⭐ Ladda standardmeny och fyll i Swish</button>
         </div>
       </div>
-      <h3>Välkommen! 👋</h3>
-      <p>Fyll i föreningens Swish-nummer, ge kassan ett namn och lägg upp det ni säljer. Sedan kan du ta betalt med Swish eller kontant.</p>
-      <div style="background:#e3f6ea;border:1.5px solid #a7f3d0;padding:12px 14px;border-radius:12px;margin:12px 0;">
-        <strong style="color:var(--green-dark)">💡 Supersnabb start:</strong>
-        <p style="margin:4px 0 8px;font-size:.9rem;color:var(--text)">Vill du komma igång direkt med vanliga kioskvaror (Kaffe, Festis, Kaka, Toast, Korv)?</p>
-        <button type="button" id="quickStartBtn" class="btn btn-green btn-block">⭐ Ladda standardmeny och fyll i Swish</button>
-      </div>
-    </div>
 
-    <div class="card">
-      <h3>Betalning</h3>
-      <div class="field">
-        <label for="swishInput">Swish-nummer (mottagare)</label>
-        <input id="swishInput" type="tel" inputmode="numeric" autocomplete="off" placeholder="123 456 78 90 eller 070-123 45 67">
-        <div class="hint">Föreningar: 123-nummer (10 siffror). Privatpersoner: mobilnummer som börjar på 07.</div>
-        <div id="swishError" class="error" hidden></div>
+      <div class="card">
+        <h3>Betalning &amp; kassaval</h3>
+        <div class="field">
+          <label for="swishInput">Swish-nummer (mottagare)</label>
+          <input id="swishInput" type="tel" inputmode="numeric" autocomplete="off" placeholder="123 456 78 90 eller 070-123 45 67">
+          <div class="hint">Föreningar: 123-nummer (10 siffror). Privatpersoner: mobilnummer som börjar på 07.</div>
+          <div id="swishError" class="error" hidden></div>
+        </div>
+        <div class="field">
+          <label for="titleInput">Namn på kassan</label>
+          <input id="titleInput" type="text" maxlength="40" placeholder="t.ex. P14 Kiosk, Vårloppis, Luciacaféet">
+        </div>
+        <div class="field">
+          <label for="messageInput">Meddelande på betalningen</label>
+          <input id="messageInput" type="text" maxlength="50" placeholder="Kiosk">
+          <div class="hint">Visas i mottagarens Swish. Max 50 tecken. Å, ä och ö skrivs som a och o i QR-koden.</div>
+        </div>
+        <div class="field" style="border-top:1px solid var(--line);padding-top:12px;margin-top:14px">
+          <label class="check-label" style="margin-top:0">
+            <input type="checkbox" id="allowCashInput" checked>
+            <span>Tillåt kontantbetalning</span>
+          </label>
+          <div class="hint">Stäng av om ni har en kontantfri kassa (endast Swish).</div>
+          <label class="check-label" style="margin-top:12px">
+            <input type="checkbox" id="allowCustomInput" checked>
+            <span>Visa &quot;+ Fritt belopp&quot; i kassan</span>
+          </label>
+          <div class="hint">För valfria belopp (loppis, pant m.m.). Stäng av om ni bara säljer fasta varor.</div>
+        </div>
       </div>
-      <div class="field">
-        <label for="titleInput">Namn på kassan</label>
-        <input id="titleInput" type="text" maxlength="40" placeholder="t.ex. P14 Kiosk, Vårloppis, Luciacaféet">
+
+      <div class="card">
+        <h3>Meny</h3>
+        <p style="color:var(--muted);font-size:.88rem;margin:-4px 0 10px">Tryck på <strong>I lager / Slut</strong> på en vara om något tillfälligt tar slut under dagen.</p>
+        <ul id="menuList" class="menu-list"></ul>
+        <form id="addForm" class="add-form" autocomplete="off" novalidate>
+          <input id="addName" type="text" maxlength="30" placeholder="Varans namn" aria-label="Varans namn">
+          <input id="addPrice" type="number" inputmode="numeric" min="0" step="1" placeholder="Pris" aria-label="Pris i kronor">
+          <div id="addError" class="error" hidden></div>
+          <button type="submit" class="btn">+ Lägg till vara</button>
+        </form>
+        <div class="row-actions">
+          <button type="button" class="btn btn-secondary" data-action="default-menu">Ladda standardmeny</button>
+          <button type="button" class="btn" id="shareMenuBtn" data-action="share-menu">📲 Dela meny till annan mobil</button>
+        </div>
+        <button type="button" class="btn btn-secondary btn-block" id="printSheetBtn" style="margin-top:8px">🖨️ Skriv ut instruktionslapp till kiosken (A4)</button>
       </div>
-      <div class="field">
-        <label for="messageInput">Meddelande på betalningen</label>
-        <input id="messageInput" type="text" maxlength="50" placeholder="Kiosk">
-        <div class="hint">Visas i mottagarens Swish. Max 50 tecken. Å, ä och ö skrivs som a och o i QR-koden.</div>
+
+      <div class="card" id="securityCard">
+        <h3>Säkerhet &amp; PIN-lås</h3>
+        <div id="securityBody"></div>
       </div>
-    </div>
 
-    <div class="card">
-      <h3>Meny</h3>
-      <ul id="menuList" class="menu-list"></ul>
-      <form id="addForm" class="add-form" autocomplete="off" novalidate>
-        <input id="addName" type="text" maxlength="30" placeholder="Varans namn" aria-label="Varans namn">
-        <input id="addPrice" type="number" inputmode="numeric" min="0" step="1" placeholder="Pris" aria-label="Pris i kronor">
-        <div id="addError" class="error" hidden></div>
-        <button type="submit" class="btn">+ Lägg till vara</button>
-      </form>
-      <div class="row-actions">
-        <button type="button" class="btn btn-secondary" data-action="default-menu">Ladda standardmeny</button>
-        <button type="button" class="btn" id="shareMenuBtn" data-action="share-menu">📲 Dela meny till annan mobil</button>
+      <div class="card" id="backupCard">
+        <h3>Data &amp; säkerhetskopia</h3>
+        <p style="color:var(--muted);font-size:.9rem;margin:0 0 12px">Spara en full kopia av meny, inställningar, pass och försäljningshistorik.</p>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary btn-block" data-action="export-backup">💾 Exportera säkerhetskopia (JSON)</button>
+          <button type="button" class="btn btn-secondary btn-block" data-action="import-backup">📥 Återställ från säkerhetskopia</button>
+          <input type="file" id="backupFileInput" accept=".json,application/json" hidden>
+        </div>
       </div>
-      <button type="button" class="btn btn-secondary btn-block" id="printSheetBtn" style="margin-top:8px">🖨️ Skriv ut instruktionslapp till kiosken (A4)</button>
-    </div>
 
-    <div class="card" id="shiftsCard">
-      <h3>Kassapass &amp; dagsavslut</h3>
-      <div id="shiftsBody"></div>
-    </div>
-
-    <div class="card" id="statsCard">
-      <h3>Försäljning</h3>
-      <div id="statsBody"></div>
-    </div>
-
-    <div class="card" id="securityCard">
-      <h3>Säkerhet &amp; PIN-lås</h3>
-      <div id="securityBody"></div>
-    </div>
-
-    <div class="card" id="backupCard">
-      <h3>Data &amp; säkerhetskopia</h3>
-      <p style="color:var(--muted);font-size:.9rem;margin:0 0 12px">Spara en full kopia av meny, inställningar, pass och försäljningshistorik.</p>
-      <div class="dialog-actions">
-        <button type="button" class="btn btn-secondary btn-block" data-action="export-backup">💾 Exportera säkerhetskopia (JSON)</button>
-        <button type="button" class="btn btn-secondary btn-block" data-action="import-backup">📥 Återställ från säkerhetskopia</button>
-        <input type="file" id="backupFileInput" accept=".json,application/json" hidden>
+      <div class="card">
+        <div class="about-brand">
+          <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#111214"/><path d="M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z" fill="#08873a"/><path d="M256 84 400 134v118c0 92-62 158-144 188Z" fill="#066a2d"/><path d="M190 262l46 46 90-100" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><strong>Klubbkassan</strong><div style="color:var(--muted);font-size:.9rem">Betala med Swish eller kontant</div></div>
+        </div>
+        <h3 style="margin-top:4px">App &amp; offline</h3>
+        <p id="appStatus" style="margin:0 0 10px;color:var(--muted)"></p>
+        <div class="field" style="margin:10px 0 14px">
+          <label class="check-label">
+            <input type="checkbox" id="keepAwakeInput">
+            <span>Håll skärmen tänd i kassan</span>
+          </label>
+          <div class="hint">Förhindrar att mobilen släcks mellan kunder vid disken.</div>
+        </div>
+        <button type="button" id="installBtn" class="btn btn-block" hidden>Installera på hemskärmen</button>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="about-brand">
-        <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#111214"/><path d="M256 84 400 134v118c0 92-62 158-144 188-82-30-144-96-144-188V134Z" fill="#08873a"/><path d="M256 84 400 134v118c0 92-62 158-144 188Z" fill="#066a2d"/><path d="M190 262l46 46 90-100" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div><strong>Klubbkassan</strong><div style="color:var(--muted);font-size:.9rem">Betala med Swish eller kontant</div></div>
+      <div class="save-bar">
+        <p id="formError" class="form-error" hidden></p>
+        <button id="saveBtn" class="btn btn-green btn-lg btn-block">Spara och gå till kassan</button>
       </div>
-      <h3 style="margin-top:4px">App &amp; offline</h3>
-      <p id="appStatus" style="margin:0 0 10px;color:var(--muted)"></p>
-      <div class="field" style="margin:10px 0 14px">
-        <label class="check-label">
-          <input type="checkbox" id="keepAwakeInput">
-          <span>Håll skärmen tänd i kassan</span>
-        </label>
-        <div class="hint">Förhindrar att mobilen släcks mellan kunder vid disken.</div>
-      </div>
-      <button type="button" id="installBtn" class="btn btn-block" hidden>Installera på hemskärmen</button>
-    </div>
-
-    <div class="save-bar">
-      <p id="formError" class="form-error" hidden></p>
-      <button id="saveBtn" class="btn btn-green btn-lg btn-block">Spara och gå till kassan</button>
     </div>
   </div>
 </section>
@@ -741,7 +785,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     <p id="payTitle" class="pay-title">Klubbkassan</p>
     <div class="pay-label">Att betala</div>
     <div id="payAmount" class="pay-amount">0 kr</div>
-    <div class="pay-tabs" role="tablist" aria-label="Betalsätt">
+    <div id="payTabs" class="pay-tabs" role="tablist" aria-label="Betalsätt">
       <button id="tabSwish" class="pay-tab active" role="tab" aria-selected="true" data-method="swish">Swish</button>
       <button id="tabCash" class="pay-tab" role="tab" aria-selected="false" data-method="cash">Kontant</button>
     </div>
@@ -799,6 +843,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     <div><strong>Varor:</strong> <span id="shareSumCount"></span></div>
   </div>
 
+  <div class="local-note">
+    💡 <strong>Så funkar flera mobiler:</strong> Varje mobil räknar sin egen försäljning. När passet är slut trycker säljaren på <strong>Dagsavslut</strong> och delar sin rapport till kassören.
+  </div>
+
   <div class="dialog-actions">
     <button type="button" id="copyShareLinkBtn" class="btn btn-block">Kopiera länk</button>
     <button type="button" class="btn btn-secondary btn-block" data-action="close-share">Klar</button>
@@ -823,6 +871,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
   <div id="importSwishChangeWarn" class="swish-change-warn" hidden></div>
 
+  <div class="local-note">
+    💡 Meny och Swish-nummer sparas på denna mobil. Varje mobil räknar sin egen försäljning – tryck på <strong>Dagsavslut</strong> när ditt pass är slut för att skicka rapporten till kassören.
+  </div>
+
   <p class="dialog-warn">⚠️ Detta ersätter nuvarande meny och Swish-nummer på denna enhet. (Köphistorik påverkas inte.)</p>
 
   <div class="dialog-actions">
@@ -840,8 +892,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
   </div>
-  <p class="dialog-sub">Starta ett säljpass med ingående växelkassa för att kunna göra dagsavslut.</p>
-  <div class="field">
+  <p class="dialog-sub">Starta ett säljpass för att hålla ihop passets försäljning och göra dagsavslut.</p>
+  <div id="shiftStartFloatField" class="field">
     <label for="shiftStartFloat">Ingående växelkassa (kr)</label>
     <input id="shiftStartFloat" type="number" inputmode="numeric" min="0" step="1" value="500" placeholder="500">
     <div class="hint">Kontanter i kassaskrinet vid passets start. Ange 0 om ni inte har växelkassa.</div>
@@ -866,7 +918,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     </button>
   </div>
   <div id="endShiftSummary" class="import-preview"></div>
-  <div class="field">
+  <div id="shiftCountedCashField" class="field">
     <label for="shiftCountedCash">Räknade kontanter i kassan (kr)</label>
     <input id="shiftCountedCash" type="number" inputmode="numeric" min="0" step="1" placeholder="Räkna pengarna i skrinet">
     <div class="hint">Inklusive växelkassan.</div>
@@ -1080,7 +1132,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   ];
 
   const state = {
-    settings: Object.assign({ swish: '', title: BRAND, message: 'Kiosk', pin: null, keepAwake: false }, load(KEYS.settings, {}) || {}),
+    settings: Object.assign({ swish: '', title: BRAND, message: 'Kiosk', pin: null, keepAwake: false, allowCash: true, allowCustom: true }, load(KEYS.settings, {}) || {}),
     menu: Array.isArray(load(KEYS.menu, [])) ? load(KEYS.menu, []) : [],
     orders: Array.isArray(load(KEYS.orders, [])) ? load(KEYS.orders, []) : [],
     shifts: Array.isArray(load(KEYS.shifts, [])) ? load(KEYS.shifts, []) : [],
@@ -1177,7 +1229,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       delete state.cart['test_demo'];
     }
     Object.keys(state.cart).forEach((id) => {
-      if (!itemById(id) || !(state.cart[id] > 0)) {
+      const it = itemById(id);
+      if (!it || it.soldOut || !(state.cart[id] > 0)) {
         delete state.cart[id];
         if (state.customItems && state.customItems[id]) delete state.customItems[id];
       }
@@ -1216,6 +1269,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       html = '<div class="catalog-empty"><p><strong>Menyn är tom.</strong></p><p>Lägg till varor under inställningar.</p><button class="btn" data-action="open-settings">Öppna inställningar</button></div>';
     } else {
       html = state.menu.map((m) => {
+        if (m.soldOut) {
+          return '<button class="tile sold-out" disabled aria-label="' + esc(m.name) + ', tillfälligt slut">' +
+            '<span class="tile-name">' + esc(m.name) + '</span>' +
+            '<span class="tile-price">' + kr(m.price) + '</span>' +
+            '<span class="tile-soldout-badge">Slut</span>' +
+            '</button>';
+        }
         const q = state.cart[m.id] || 0;
         return '<button class="tile' + (q ? ' in-cart' : '') + '" data-add="' + esc(m.id) + '" aria-label="Lägg till ' + esc(m.name) + ', ' + kr(m.price) + '">' +
           '<span class="tile-name">' + esc(m.name) + '</span>' +
@@ -1224,10 +1284,12 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
           '</button>';
       }).join('');
     }
-    html += '<button type="button" class="tile tile-custom" data-action="custom-item" aria-label="Lägg till fritt belopp">' +
-      '<span class="tile-name">+ Fritt belopp</span>' +
-      '<span class="tile-price">Valfritt pris</span>' +
-      '</button>';
+    if (state.settings.allowCustom !== false) {
+      html += '<button type="button" class="tile tile-custom" data-action="custom-item" aria-label="Lägg till fritt belopp">' +
+        '<span class="tile-name">+ Fritt belopp</span>' +
+        '<span class="tile-price">Valfritt pris</span>' +
+        '</button>';
+    }
     catalogEl.innerHTML = html;
   }
 
@@ -1663,12 +1725,15 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
     if (total <= 0) {
       currentRefCode = '';
+      $('payTabs').hidden = true;
       $('tabSwish').disabled = true;
       $('tabSwish').title = 'Swish kräver minst 1 kr';
       $('payRefBox').hidden = true;
       $('payRefHint').hidden = true;
       setPayMethod('cash');
     } else {
+      const cashAllowed = s.allowCash !== false;
+      $('payTabs').hidden = !cashAllowed;
       $('tabSwish').disabled = false;
       $('tabSwish').title = '';
       currentRefCode = generateRefCode();
@@ -1845,12 +1910,14 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
   /* ================= Kassapass & Dagsavslut ================= */
   function openStartShiftDialog() {
-    $('shiftStartFloat').value = '500';
+    const cashAllowed = state.settings.allowCash !== false;
+    $('shiftStartFloatField').hidden = !cashAllowed;
+    $('shiftStartFloat').value = cashAllowed ? '500' : '0';
     $('shiftStartNote').value = '';
     $('startShiftDialog').hidden = false;
     $('startShiftBackdrop').hidden = false;
     lockScroll();
-    setTimeout(() => $('shiftStartFloat').focus(), 50);
+    setTimeout(() => $(cashAllowed ? 'shiftStartFloat' : 'shiftStartNote').focus(), 50);
   }
   function closeStartShiftDialog() {
     $('startShiftDialog').hidden = true;
@@ -1858,7 +1925,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     lockScroll();
   }
   $('confirmStartShiftBtn').addEventListener('click', () => {
-    const floatVal = parsePrice($('shiftStartFloat').value) ?? 0;
+    const floatVal = state.settings.allowCash !== false ? (parsePrice($('shiftStartFloat').value) ?? 0) : 0;
     const note = $('shiftStartNote').value.trim();
     const shift = {
       id: uid(),
@@ -1873,7 +1940,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     renderShiftBanner();
     renderShifts();
     vibrate([15, 30, 15]);
-    toast('✓ Passet är startat (växelkassa ' + kr(floatVal) + ')');
+    toast(state.settings.allowCash !== false ? ('✓ Passet är startat (växelkassa ' + kr(floatVal) + ')') : '✓ Passet är startat');
   });
   document.querySelectorAll('[data-action="close-start-shift"]').forEach((b) => b.addEventListener('click', closeStartShiftDialog));
   $('startShiftBackdrop').addEventListener('click', closeStartShiftDialog);
@@ -1898,18 +1965,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const totalSales = swishTotal + cashTotal;
     const expectedCash = s.startFloat + cashTotal;
 
+    const isCashless = state.settings.allowCash === false && !s.startFloat && cashTotal === 0;
+
     $('endShiftSummary').innerHTML =
       '<div style="font-weight:800;font-size:1.1rem;margin-bottom:6px">Summering av passet</div>' +
       '<div style="color:var(--muted);font-size:.88rem;margin-bottom:10px">Startat ' + esc(fmtDateTime(s.openedAt)) + (s.note ? ' · ' + esc(s.note) : '') + '</div>' +
       '<div style="display:grid;gap:4px;font-size:.95rem">' +
-        '<div><strong>Ingående växelkassa:</strong> ' + kr(s.startFloat) + '</div>' +
-        '<div><strong>Kontantförsäljning:</strong> ' + kr(cashTotal) + ' (' + cashOrders.length + ' köp)</div>' +
+        (isCashless ? '' : (
+          '<div><strong>Ingående växelkassa:</strong> ' + kr(s.startFloat) + '</div>' +
+          '<div><strong>Kontantförsäljning:</strong> ' + kr(cashTotal) + ' (' + cashOrders.length + ' köp)</div>'
+        )) +
         '<div><strong>Swish-försäljning:</strong> ' + kr(swishTotal) + ' (' + swishOrders.length + ' köp)</div>' +
         '<div><strong>Totalt sålt:</strong> ' + kr(totalSales) + '</div>' +
-        '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:1.05rem"><strong>Beräknat i kontantkassan:</strong> ' + kr(expectedCash) + '</div>' +
+        (isCashless ? '' : '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:1.05rem"><strong>Beräknat i kontantkassan:</strong> ' + kr(expectedCash) + '</div>') +
       '</div>';
 
-    $('shiftCountedCash').value = '';
+    $('shiftCountedCashField').hidden = isCashless;
+    $('shiftCountedCash').value = isCashless ? '0' : '';
     $('shiftEndNote').value = '';
     const diffBox = $('shiftDiffBox');
     diffBox.hidden = true;
@@ -1937,7 +2009,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     $('endShiftDialog').hidden = false;
     $('endShiftBackdrop').hidden = false;
     lockScroll();
-    setTimeout(() => $('shiftCountedCash').focus(), 50);
+    setTimeout(() => $(isCashless ? 'shiftEndNote' : 'shiftCountedCash').focus(), 50);
   }
   function closeEndShiftDialog() {
     $('endShiftDialog').hidden = true;
@@ -2011,22 +2083,26 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const codes = swishOrders.filter((o) => o.ref).map((o) => '#' + o.ref);
     const codesStr = codes.length ? codes.join(', ') : 'Inga';
 
+    const isCashless = state.settings.allowCash === false && !s.startFloat && cashTotal === 0;
+
     let txt = '📊 KASSARAPPORT – ' + title + '\n' +
       'Datum: ' + fmtDate(s.openedAt) + ' (' + fmtTime(s.openedAt) + ' – ' + (s.closedAt ? fmtTime(s.closedAt) : 'Pågående') + ')\n';
     if (s.note) txt += 'Anteckning: ' + s.note + '\n';
     txt += '------------------------------------\n' +
       'FÖRSÄLJNING\n' +
       'Swish: ' + kr(swishTotal) + ' (' + swishOrders.length + ' köp)\n' +
-      'Kontant: ' + kr(cashTotal) + ' (' + cashOrders.length + ' köp)\n' +
-      'Totalt sålt: ' + kr(totalSales) + ' (' + activeOrders.length + ' köp)\n' +
-      '------------------------------------\n' +
-      'KONTANTAVSTÄMNING\n' +
-      'Ingående växelkassa: ' + kr(s.startFloat) + '\n' +
-      '+ Kontantförsäljning: ' + kr(cashTotal) + '\n' +
-      '= Beräknat i kassan: ' + kr(expected) + '\n' +
-      'Faktiskt räknat: ' + kr(counted) + '\n' +
-      'Differens: ' + (diff > 0 ? ('+' + kr(diff) + ' (överskott)') : diff < 0 ? (kr(diff) + ' (underskott)') : '0 kr (stämmer)') + '\n' +
-      '------------------------------------\n' +
+      (isCashless ? '' : 'Kontant: ' + kr(cashTotal) + ' (' + cashOrders.length + ' köp)\n') +
+      'Totalt sålt: ' + kr(totalSales) + ' (' + activeOrders.length + ' köp)\n';
+    if (!isCashless) {
+      txt += '------------------------------------\n' +
+        'KONTANTAVSTÄMNING\n' +
+        'Ingående växelkassa: ' + kr(s.startFloat) + '\n' +
+        '+ Kontantförsäljning: ' + kr(cashTotal) + '\n' +
+        '= Beräknat i kassan: ' + kr(expected) + '\n' +
+        'Faktiskt räknat: ' + kr(counted) + '\n' +
+        'Differens: ' + (diff > 0 ? ('+' + kr(diff) + ' (överskott)') : diff < 0 ? (kr(diff) + ' (underskott)') : '0 kr (stämmer)') + '\n';
+    }
+    txt += '------------------------------------\n' +
       'SWISH-KONTROLLKODER\n' + codesStr + '\n';
 
     if (voidedOrders.length) {
@@ -2105,15 +2181,16 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
     let html = '<div style="margin-bottom:12px">';
     if (active) {
+      const showFloat = state.settings.allowCash !== false || active.startFloat > 0;
       html += '<div style="background:#e3f6ea;padding:12px;border-radius:12px;margin-bottom:10px">' +
         '<div style="font-weight:800;color:var(--green-dark);margin-bottom:4px">🟢 Aktivt pass pågår</div>' +
-        '<div style="font-size:.9rem;color:var(--muted);margin-bottom:8px">Startat ' + esc(fmtDateTime(active.openedAt)) + ' · Växelkassa: ' + kr(active.startFloat) + '</div>' +
+        '<div style="font-size:.9rem;color:var(--muted);margin-bottom:8px">Startat ' + esc(fmtDateTime(active.openedAt)) + (showFloat ? ' · Växelkassa: ' + kr(active.startFloat) : '') + (active.note ? ' · ' + esc(active.note) : '') + '</div>' +
         '<button type="button" class="btn btn-green btn-block" data-action="close-shift">Avsluta pass / Dagsavslut</button>' +
         '</div>';
     } else {
       html += '<div style="background:var(--bg);padding:12px;border-radius:12px;margin-bottom:10px">' +
         '<div style="font-weight:800;margin-bottom:4px">⚪ Inget aktivt pass</div>' +
-        '<div style="font-size:.9rem;color:var(--muted);margin-bottom:8px">Starta ett pass med växelkassa för att hålla ordning på dagsavslut.</div>' +
+        '<div style="font-size:.9rem;color:var(--muted);margin-bottom:8px">Starta ett pass för att samla passets försäljning i en egen rapport vid dagsavslut.</div>' +
         '<button type="button" class="btn btn-block" data-action="start-shift">Starta nytt pass</button>' +
         '</div>';
     }
@@ -2180,7 +2257,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         if (!confirm('Återställ kassan från filen?\n\nDetta ersätter nuvarande inställningar, meny, pass och historik på denna enhet.')) {
           return;
         }
-        state.settings = Object.assign({ swish: '', title: BRAND, message: 'Kiosk', pin: null, keepAwake: false }, data.settings);
+        state.settings = Object.assign({ swish: '', title: BRAND, message: 'Kiosk', pin: null, keepAwake: false, allowCash: true, allowCustom: true }, data.settings);
         state.menu = Array.isArray(data.menu) ? data.menu : [];
         state.shifts = Array.isArray(data.shifts) ? data.shifts : [];
         state.orders = Array.isArray(data.orders) ? data.orders : [];
@@ -2227,22 +2304,41 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   /* ================= Inställningar ================= */
   function isConfigured() { return !swishError(state.settings.swish) && state.menu.length > 0; }
 
-  function openSettings() {
+  let settingsTab = 'sales';
+  function setSettingsTab(tab) {
+    settingsTab = tab;
+    ['sales', 'config'].forEach((t) => {
+      const btn = $(t === 'sales' ? 'stabSales' : 'stabConfig');
+      btn.classList.toggle('active', t === tab);
+      btn.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+    });
+    $('settingsPanelSales').hidden = tab !== 'sales';
+    $('settingsPanelConfig').hidden = tab !== 'config';
+  }
+  $('stabSales').addEventListener('click', () => { setSettingsTab('sales'); vibrate(8); });
+  $('stabConfig').addEventListener('click', () => { setSettingsTab('config'); vibrate(8); });
+  $('salesCloseBtn').addEventListener('click', closeSettings);
+
+  function openSettings(preferredTab) {
     closeCart();
     const s = state.settings;
     const firstRun = !s.swish;
+    const configured = isConfigured();
     $('welcome').hidden = !firstRun;
-    $('settingsHeading').textContent = firstRun ? 'Kom igång' : 'Inställningar';
-    $('settingsClose').hidden = !isConfigured();
+    $('settingsHeading').textContent = firstRun ? 'Kom igång' : 'Kassameny & inställningar';
+    $('settingsClose').hidden = !configured;
+    $('settingsTabs').hidden = !configured;
     // Dölj avancerade kort vid allra första uppstarten så användaren inte överväldigas
-    $('shiftsCard').hidden = firstRun;
-    $('statsCard').hidden = firstRun;
     $('securityCard').hidden = firstRun;
     $('backupCard').hidden = firstRun;
+
+    setSettingsTab(!configured ? 'config' : (preferredTab || 'sales'));
 
     $('swishInput').value = s.swish ? formatSwish(s.swish) : '';
     $('titleInput').value = s.title || '';
     $('messageInput').value = s.message || '';
+    $('allowCashInput').checked = s.allowCash !== false;
+    $('allowCustomInput').checked = s.allowCustom !== false;
     $('keepAwakeInput').checked = !!s.keepAwake;
     $('swishError').hidden = true;
     $('swishInput').classList.remove('invalid');
@@ -2267,6 +2363,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   }
   $('settingsClose').addEventListener('click', closeSettings);
 
+  $('allowCashInput').addEventListener('change', () => {
+    state.settings.allowCash = $('allowCashInput').checked;
+    save(KEYS.settings, state.settings);
+    renderShiftBanner();
+    renderShifts();
+  });
+  $('allowCustomInput').addEventListener('change', () => {
+    state.settings.allowCustom = $('allowCustomInput').checked;
+    save(KEYS.settings, state.settings);
+    renderCatalog();
+  });
   $('keepAwakeInput').addEventListener('change', () => {
     state.settings.keepAwake = $('keepAwakeInput').checked;
     save(KEYS.settings, state.settings);
@@ -2316,9 +2423,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
           '<button class="mini" data-m="cancel" aria-label="Avbryt">' + icons.x + '</button>' +
           '</li>';
       }
-      return '<li class="menu-row" data-id="' + id + '">' +
+      return '<li class="menu-row' + (m.soldOut ? ' is-soldout' : '') + '" data-id="' + id + '">' +
         '<span class="m-name">' + esc(m.name) + '</span>' +
         '<span class="m-price">' + kr(m.price) + '</span>' +
+        '<button class="mini stock' + (m.soldOut ? ' out' : '') + '" data-m="soldout" title="' + (m.soldOut ? 'Markera som i lager' : 'Markera som tillfälligt slut') + '" aria-label="' + (m.soldOut ? 'Markera som i lager' : 'Markera som tillfälligt slut') + '">' + (m.soldOut ? 'Slut' : 'I lager') + '</button>' +
         '<button class="mini" data-m="up" aria-label="Flytta upp"' + (i === 0 ? ' disabled' : '') + '>' + icons.up + '</button>' +
         '<button class="mini" data-m="down" aria-label="Flytta ner"' + (i === last ? ' disabled' : '') + '>' + icons.down + '</button>' +
         '<button class="mini" data-m="edit" aria-label="Redigera">' + icons.edit + '</button>' +
@@ -2336,7 +2444,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     save(KEYS.menu, state.menu);
     reconcileCart();
     renderMenuList();
-    $('settingsClose').hidden = !isConfigured();
+    const configured = isConfigured();
+    $('settingsClose').hidden = !configured;
+    $('settingsTabs').hidden = !configured;
   }
 
   function saveEdit(row) {
@@ -2361,6 +2471,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const i = state.menu.findIndex((m) => m.id === id);
     if (i < 0) return;
     switch (btn.dataset.m) {
+      case 'soldout':
+        state.menu[i].soldOut = !state.menu[i].soldOut;
+        persistMenu();
+        toast(state.menu[i].soldOut ? ('"' + state.menu[i].name + '" är markerad som slut') : ('"' + state.menu[i].name + '" är i lager igen'));
+        break;
       case 'up':
         if (i > 0) { [state.menu[i - 1], state.menu[i]] = [state.menu[i], state.menu[i - 1]]; persistMenu(); }
         break;
@@ -2574,6 +2689,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     state.settings.swish = num;
     state.settings.title = $('titleInput').value.trim() || BRAND;
     state.settings.message = $('messageInput').value.trim() || 'Kiosk';
+    state.settings.allowCash = $('allowCashInput').checked;
+    state.settings.allowCustom = $('allowCustomInput').checked;
     state.settings.keepAwake = $('keepAwakeInput').checked;
     save(KEYS.settings, state.settings);
     closeSettings();
@@ -2620,7 +2737,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const s = {
       swish: num,
       title: $('titleInput').value.trim() || state.settings.title || BRAND,
-      message: $('messageInput').value.trim() || state.settings.message || 'Kiosk'
+      message: $('messageInput').value.trim() || state.settings.message || 'Kiosk',
+      allowCash: $('allowCashInput').checked,
+      allowCustom: $('allowCustomInput').checked
     };
 
     const payload = {
@@ -2730,7 +2849,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       state.settings = Object.assign({}, state.settings || {}, {
         swish: normalizeSwish(s.swish),
         title: s.title || BRAND,
-        message: s.message || 'Kiosk'
+        message: s.message || 'Kiosk',
+        allowCash: s.allowCash !== false,
+        allowCustom: s.allowCustom !== false
       });
       save(KEYS.settings, state.settings);
 
@@ -2808,7 +2929,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const s = {
       swish: num,
       title: $('titleInput').value.trim() || state.settings.title || BRAND,
-      message: $('messageInput').value.trim() || state.settings.message || 'Kiosk'
+      message: $('messageInput').value.trim() || state.settings.message || 'Kiosk',
+      allowCash: $('allowCashInput').checked,
+      allowCustom: $('allowCustomInput').checked
     };
     const payload = {
       v: 1,
@@ -2835,10 +2958,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         '</div>' +
       '</div>' +
       '<div style="background:#f8f9fa;border:1px solid #ddd;border-radius:10px;padding:12px;margin-bottom:14px;font-size:.9rem;line-height:1.45">' +
-        '<strong style="display:block;margin-bottom:6px;font-size:1rem">Så här säljer du (3 enkla steg):</strong>' +
+        '<strong style="display:block;margin-bottom:6px;font-size:1rem">Så här säljer du (4 enkla steg):</strong>' +
         '1. <strong>Tryck på varorna</strong> kunden köper.<br>' +
         '2. Tryck på gröna knappen <strong>Ta betalt</strong>.<br>' +
-        '3. <strong>Kunden skannar Swish</strong> på din mobil. Titta på kundens mobil att betalningen är grön och klar, tryck sedan <strong>Klar / Ny kund</strong>.' +
+        '3. <strong>Kunden skannar Swish</strong> på din mobil. Titta på kundens mobil att betalningen är grön och klar, tryck sedan <strong>Klar / Ny kund</strong>.<br>' +
+        '4. <strong>När ditt pass är slut:</strong> Tryck <strong>Dagsavslut</strong> högst upp i kassan och dela rapporten till kassören. <em>(Varje mobil räknar sin egen försäljning.)</em>' +
       '</div>' +
       '<div style="border-top:1px dashed #999;padding-top:10px;font-size:.88rem;color:#333">' +
         'Frågor eller problem under passet? Ring kioskansvarig: ________________________________' +
