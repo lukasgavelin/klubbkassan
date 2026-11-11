@@ -100,5 +100,6 @@ Moderna versioner av Chrome, Edge, Safari (iOS 15+), Firefox och Samsung Interne
 
 ## Licens & tredjepart
 
+- **Klubbkassan:** Licensierad under [PolyForm Noncommercial License 1.0.0](./LICENSE) – fri för personligt, ideellt och icke-kommersiellt bruk (t.ex. idrottsföreningar, skolklasser och ideella föreningar). Kommersiell användning kräver separat licens.
 - QR-generering: [qrcodejs](https://github.com/davidshimjs/qrcodejs) 1.0.0 av Shim Sangmin, MIT-licens (inbäddad i `index.html`).
 - "Swish" är ett registrerat varumärke som tillhör Getswish AB. Klubbkassan är inte ansluten till eller godkänd av Getswish AB.
